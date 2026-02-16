@@ -1,0 +1,411 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// --------------------------------------
+// Enums
+// --------------------------------------
+
+enum Role {
+  GUEST
+  MEMBER
+  MENTOR
+  ADMIN
+}
+
+enum UserStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  REJECTED
+}
+
+enum ListingStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CLOSED
+}
+
+enum SupportType {
+  OVERSEAS
+  FINANCIAL
+  GUIDANCE
+}
+
+enum CareerType {
+  SEEKING
+  HIRING
+}
+
+// --------------------------------------
+// User & Profile
+// --------------------------------------
+
+model User {
+  id           String     @id @default(uuid())
+  mobileNumber String     @unique
+  otpHash      String?
+  otpExpires   DateTime?
+  role         Role       @default(GUEST)
+  status       UserStatus @default(PENDING)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  // Relations
+  profile          Profile?
+  businessListings BusinessListing[]
+  careerListings   CareerListing[]
+  helpRequests     HelpRequest[]
+  ownedGroups      Group[]           @relation("GroupOwner")
+  groupMemberships GroupMember[]
+  organizedEvents  Event[]
+  achievements     Achievement[]
+  supportRequests  SupportRequest[]
+  notifications    Notification[]
+  auditLogs        AuditLog[]        @relation("AdminAudit")
+  donations        DonationTransaction[]
+  scholarshipApplications ScholarshipApplication[]
+  announcements    Announcement[]
+
+  @@index([mobileNumber])
+  @@index([role])
+  @@index([status])
+}
+
+model Profile {
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Personal Information
+  fullName      String?
+  email         String? @unique
+  address       String?
+  city          String?
+  state         String?
+  bio           String?
+  avatarUrl     String?
+  profession    String?
+  bloodGroup    String?
+  dateOfBirth   DateTime?
+  maritalStatus String?
+
+  // Family Information
+  totalFamilyMembers Int?       @default(0) // Total family members excluding user
+  familyMembers      Json?      // Array of {name, ageRange, relation}
+  
+  // Business/Occupation Information
+  occupation   String?
+  company      String?
+  workAddress  String?
+  
+  // Interests & Skills
+  interests String[] @default([])
+  skills    String[] @default([])
+
+  // Verification
+  isVerified  Boolean   @default(false)
+  idProofType String? // Aadhar, PAN, etc.
+  idProofUrl  String?
+  submittedAt DateTime?
+  verifiedAt  DateTime?
+
+  updatedAt DateTime @updatedAt
+}
+
+// --------------------------------------
+// Community & Listings
+// --------------------------------------
+
+model BusinessListing {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  businessName String
+  category     String
+  description  String
+  address      String
+  contactPhone String?
+  website      String?
+
+  status    ListingStatus @default(PENDING)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([category])
+  @@index([status])
+}
+
+model CareerListing {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title       String // Job Title
+  type        CareerType
+  description String
+  company     String?
+  location    String?
+  salaryRange String?
+
+  status    ListingStatus @default(PENDING)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([type])
+  @@index([status])
+}
+
+model HelpRequest {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String
+  category    String // Medical, Educational, Emergency
+
+  status     ListingStatus @default(PENDING)
+  isResolved Boolean       @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category])
+  @@index([status])
+}
+
+// --------------------------------------
+// Groups & Events
+// --------------------------------------
+
+model Group {
+  id          String  @id @default(uuid())
+  name        String
+  description String?
+
+  ownerId String
+  owner   User   @relation("GroupOwner", fields: [ownerId], references: [id])
+
+  members GroupMember[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model GroupMember {
+  id      String @id @default(uuid())
+  groupId String
+  group   Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  joinedAt DateTime @default(now())
+
+  @@unique([groupId, userId])
+}
+
+model Event {
+  id String @id @default(uuid())
+
+  title       String
+  description String
+  date        DateTime
+  location    String
+
+  organizerId String
+  organizer   User   @relation(fields: [organizerId], references: [id])
+
+  status    ListingStatus @default(PENDING)
+  mediaUrl  String?
+  mediaType String? // IMAGE, VIDEO
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([date])
+}
+
+model Achievement {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String
+  date        DateTime
+  proofUrl    String?
+  mediaType   String? // IMAGE, PDF
+
+  status    ListingStatus @default(PENDING)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([date])
+}
+
+
+
+model Announcement {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String
+  mediaUrl    String?
+  mediaType   String? // IMAGE, VIDEO
+
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// --------------------------------------
+// Support & Admin Managed
+// --------------------------------------
+
+model SupportRequest {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type    SupportType
+  subject String
+  details String
+
+  status    ListingStatus @default(PENDING)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+}
+
+model Donation {
+  id              String  @id @default(uuid())
+  title           String
+  description     String
+  targetAmount    Float?
+  collectedAmount Float?  @default(0)
+  bankDetails     String
+  upiId           String?
+  qrCodeUrl       String?
+
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  transactions DonationTransaction[]
+}
+
+model DonationTransaction {
+  id String @id @default(uuid())
+
+  donationId String
+  donation   Donation @relation(fields: [donationId], references: [id])
+
+  donorId   String? // Optional: Link to registered user if logged in
+  donorUser User?   @relation(fields: [donorId], references: [id])
+
+  donorName     String? // For guest donors or explicit name
+  amount        Float
+  currency      String  @default("INR")
+  paymentMethod String? // UPI, CARD, NETBANKING
+  paymentStatus String  @default("PENDING") // PENDING, SUCCESS, FAILED
+  transactionId String? // Gateway Reference ID
+
+  createdAt DateTime @default(now())
+
+  @@index([donationId])
+  @@index([donorId])
+}
+
+model Scholarship {
+  id              String   @id @default(uuid())
+  title           String
+  description     String
+  amount          Float
+  deadline        DateTime
+  educationLevel  String
+  isActive        Boolean  @default(true)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  applications    ScholarshipApplication[]
+}
+
+model ScholarshipApplication {
+  id            String @id @default(uuid())
+  
+  scholarshipId String
+  scholarship   Scholarship @relation(fields: [scholarshipId], references: [id], onDelete: Cascade)
+
+  applicantId   String
+  applicant     User   @relation(fields: [applicantId], references: [id], onDelete: Cascade)
+
+  // Personal & Family Details
+  fatherName    String?
+  motherName    String?
+  familyIncome  Float?
+
+  // Education Details
+  classOrCourse String?
+  collegeName   String?
+  scoreOrGpa    String?
+
+  // Bank Details
+  bankName      String?
+  accountNumber String?
+  ifscCode      String?
+  branchName    String?
+
+  // Documents
+  coverLetter   String?
+  markSheetUrl  String? // URL from Cloudinary
+
+  status        ListingStatus @default(PENDING)
+
+  appliedAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([scholarshipId, applicantId])
+}
+
+// --------------------------------------
+// System
+// --------------------------------------
+
+model Notification {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title   String
+  message String
+  type    String // SYSTEM, ALERT, PROMO
+  isRead  Boolean @default(false)
+
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id String @id @default(uuid())
+
+  adminId String
+  admin   User   @relation("AdminAudit", fields: [adminId], references: [id])
+
+  action   String // APPROVE_USER, REJECT_LISTING, ETC
+  targetId String? // ID of affected entity
+  details  String?
+
+  createdAt DateTime @default(now())
+}
