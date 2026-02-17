@@ -20,6 +20,7 @@ import adminRoutes from './routes/adminRoutes';
 import notificationRoutes from './routes/notificationRoutes';
 import scholarshipRoutes from './routes/scholarshipRoutes';
 import announcementRoutes from './routes/announcementRoutes';
+import collaborationRoutes from './routes/collaborationRoutes';
 
 dotenv.config();
 
@@ -58,6 +59,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/scholarships', scholarshipRoutes);
 app.use('/api/announcements', announcementRoutes);
+app.use('/api/collaboration', collaborationRoutes);
 
 // Health check route
 app.get('/', (req, res) => {

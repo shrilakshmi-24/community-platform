@@ -10,6 +10,7 @@ interface User {
     role: string;
     description: string;
     status: string;
+    isBusinessOwner?: boolean;
     // Add other fields from token if needed
 }
 
@@ -17,6 +18,7 @@ interface DecodedToken {
     userId: string;
     role: string;
     status: string;
+    isBusinessOwner?: boolean;
     [key: string]: unknown;
 }
 
@@ -52,6 +54,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     role: decoded.role,
                     description: '', // Assuming description is not in token or needs to be fetched
                     status: decoded.status,
+                    isBusinessOwner: decoded.isBusinessOwner,
                 });
             } catch (error) {
                 console.error('Invalid token:', error);
@@ -72,6 +75,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 role: decoded.role,
                 description: '',
                 status: decoded.status,
+                isBusinessOwner: decoded.isBusinessOwner,
             });
         } catch (error) {
             console.error('Invalid token during login:', error);

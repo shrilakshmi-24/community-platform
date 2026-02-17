@@ -33,6 +33,14 @@ enum ListingStatus {
   APPROVED
   REJECTED
   CLOSED
+  DRAFT
+  SCHEDULED
+  EXPIRED
+}
+
+enum Visibility {
+  ALL_MEMBERS
+  GROUP_ONLY
 }
 
 enum SupportType {
@@ -44,6 +52,12 @@ enum SupportType {
 enum CareerType {
   SEEKING
   HIRING
+}
+
+enum CollaborationType {
+  LOAN
+  PARTNERSHIP
+  INVESTMENT
 }
 
 // --------------------------------------
@@ -75,6 +89,7 @@ model User {
   donations        DonationTransaction[]
   scholarshipApplications ScholarshipApplication[]
   announcements    Announcement[]
+  collaborationRequests CollaborationRequest[]
 
   @@index([mobileNumber])
   @@index([role])
@@ -132,13 +147,27 @@ model BusinessListing {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   businessName String
+  ownerName    String?     // New Common Field
   category     String
   description  String
+  shortDescription String? // New Common Field
   address      String
+  
+  // Contact
   contactPhone String?
+  contactEmail String?     // New Common Field
   website      String?
 
-  status    ListingStatus @default(PENDING)
+  // Business Specific
+  logoUrl      String?     // New Dynamic Field
+  workingHours String?     // New Dynamic Field
+
+  // Publishing
+  status      ListingStatus @default(PENDING)
+  publishDate DateTime?      // New Common Field
+  expiryDate  DateTime?      // New Common Field
+  visibility  Visibility    @default(ALL_MEMBERS) // New Common Field
+  
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
 
@@ -154,10 +183,43 @@ model CareerListing {
   title       String // Job Title
   type        CareerType
   description String
+  shortDescription String? // New Common Field
   company     String?
+  companyLogo String?      // New Dynamic Field
   location    String?
   salaryRange String?
 
+  // Job Specific
+  skills          String[]      // New Dynamic Field
+  experience      String?       // New Dynamic Field
+  employmentType  String?       // Full-time/Part-time etc.
+  applicationLink String?       // New Dynamic Field
+  applicationDeadline DateTime? // New Dynamic Field
+  contactEmail    String?       // New Common Field
+
+  // Publishing
+  status      ListingStatus @default(PENDING)
+  publishDate DateTime?      // New Common Field
+  expiryDate  DateTime?      // New Common Field
+  visibility  Visibility    @default(ALL_MEMBERS) // New Common Field
+
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([type])
+  @@index([status])
+}
+
+model CollaborationRequest {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title        String
+  description  String
+  requirements String?
+  type         CollaborationType
+  
   status    ListingStatus @default(PENDING)
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
@@ -221,15 +283,32 @@ model Event {
 
   title       String
   description String
-  date        DateTime
+  shortDescription String? // New Common Field
+  date        DateTime     // Start Date/Time
+  endDate     DateTime?    // New Dynamic Field
   location    String
+  googleMapLink String?    // New Dynamic Field
 
   organizerId String
   organizer   User   @relation(fields: [organizerId], references: [id])
 
+  // Registration & Contact
+  registrationRequired Boolean @default(false) // New Dynamic Field
+  registrationLink     String?                 // New Dynamic Field
+  maxParticipants      Int?                    // New Dynamic Field
+  contactPerson        String?                 // New Dynamic Field
+  contactEmail         String?                 // New Dynamic Field
+  contactPhone         String?                 // New Dynamic Field
+
+  // Publishing
   status    ListingStatus @default(PENDING)
+  publishDate DateTime?   // New Common Field
+  expiryDate  DateTime?   // New Common Field
+  visibility  Visibility  @default(ALL_MEMBERS) // New Common Field
+
   mediaUrl  String?
   mediaType String? // IMAGE, VIDEO
+  images    String[] // Array of image URLs for carousel
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
 
@@ -332,10 +411,26 @@ model Scholarship {
   id              String   @id @default(uuid())
   title           String
   description     String
+  shortDescription String? // New Common Field
   amount          Float
   deadline        DateTime
   educationLevel  String
-  isActive        Boolean  @default(true)
+  applicationLink String? // External link for application (optional)
+  
+  // Specific Fields
+  providerName      String? // New Dynamic Field
+  eligibility       String? // New Dynamic Field
+  requiredDocuments String? // New Dynamic Field
+  contactEmail      String? // New Common Field
+  contactPhone      String? // New Common Field
+
+  // Publishing
+  status      ListingStatus @default(PENDING) // Previously handled by isActive boolean, now unified
+  publishDate DateTime?      // New Common Field
+  expiryDate  DateTime?      // New Common Field
+  visibility  Visibility    @default(ALL_MEMBERS) // New Common Field
+  mediaUrl    String?        // New: Cover Image / Media
+  isActive        Boolean  @default(true) // Deprecate in favor of status=EXPLIRED? Keep for now for backward compat.
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt

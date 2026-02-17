@@ -1,5 +1,3 @@
-
-
 import { useState } from 'react';
 import { AppBar, Toolbar, Typography, Button, Container, Box, Menu, MenuItem, IconButton, Divider } from '@mui/material';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
@@ -7,14 +5,21 @@ import PersonIcon from '@mui/icons-material/Person';
 import FamilyRestroomIcon from '@mui/icons-material/FamilyRestroom';
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import LogoutIcon from '@mui/icons-material/Logout';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Outlet } from 'react-router-dom';
 
 const Layout = () => {
-    const { logout, isAuthenticated } = useAuth();
+    const { logout, isAuthenticated, user } = useAuth();
     const navigate = useNavigate();
+
+    // Profile Menu State
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
+
+    // Career Menu State
+    const [careerAnchorEl, setCareerAnchorEl] = useState<null | HTMLElement>(null);
+    const careerOpen = Boolean(careerAnchorEl);
 
     const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
@@ -24,9 +29,18 @@ const Layout = () => {
         setAnchorEl(null);
     };
 
+    const handleCareerMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+        setCareerAnchorEl(event.currentTarget);
+    };
+
+    const handleCareerMenuClose = () => {
+        setCareerAnchorEl(null);
+    };
+
     const handleMenuItemClick = (path: string) => {
         navigate(path);
         handleProfileMenuClose();
+        handleCareerMenuClose();
     };
 
     const handleLogout = () => {
@@ -44,11 +58,34 @@ const Layout = () => {
                     {isAuthenticated ? (
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                             <Button color="inherit" onClick={() => navigate('/business')}>Business</Button>
-                            <Button color="inherit" onClick={() => navigate('/career')}>Career</Button>
+
+                            {/* Career Dropdown */}
+                            <Button
+                                color="inherit"
+                                onClick={handleCareerMenuOpen}
+                                endIcon={<KeyboardArrowDownIcon />}
+                            >
+                                Career
+                            </Button>
+                            <Menu
+                                anchorEl={careerAnchorEl}
+                                open={careerOpen}
+                                onClose={handleCareerMenuClose}
+                            >
+                                <MenuItem onClick={() => handleMenuItemClick('/scholarships')}>Scholarships</MenuItem>
+                                <MenuItem onClick={() => handleMenuItemClick('/career')}>Jobs & Internships</MenuItem>
+                                <MenuItem onClick={() => handleMenuItemClick('/education-loan')}>Education Loan</MenuItem>
+                                <MenuItem onClick={() => handleMenuItemClick('/business-collaboration')}>Business Collaboration</MenuItem>
+                                {user?.isBusinessOwner && (
+                                    <MenuItem onClick={() => handleMenuItemClick('/business-collaboration')} sx={{ color: '#8B2635', fontWeight: 'bold' }}>
+                                        Apply Business Loan / Post Request
+                                    </MenuItem>
+                                )}
+                            </Menu>
+
                             <Button color="inherit" onClick={() => navigate('/events')}>Events</Button>
                             <Button color="inherit" onClick={() => navigate('/achievements')}>Achievements</Button>
                             <Button color="inherit" onClick={() => navigate('/announcements')}>Announcements</Button>
-                            <Button color="inherit" onClick={() => navigate('/scholarships')}>Scholarships</Button>
                             <Button color="inherit" onClick={() => navigate('/donations')} sx={{ color: '#FFD700', fontWeight: 'bold' }}>Donate</Button>
                             <Button color="inherit" onClick={() => navigate('/about')}>About Us</Button>
                             <Button color="inherit" onClick={() => navigate('/notifications')}>Notifications</Button>

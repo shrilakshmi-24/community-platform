@@ -4,6 +4,7 @@ import { Container, Typography, Box, Grid, Card, CardContent, Button, Dialog, Di
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import EventIcon from '@mui/icons-material/Event';
+import Carousel from 'react-material-ui-carousel';
 
 interface Event {
     id: string;
@@ -12,6 +13,8 @@ interface Event {
     date: string;
     location: string;
     organizerId: string;
+    images?: string[];
+    mediaUrl?: string; // Fallback
 }
 
 const EventsPage = () => {
@@ -85,6 +88,33 @@ const EventsPage = () => {
                     events.map((event) => (
                         <Grid key={event.id} size={{ xs: 12, sm: 6, md: 4 }}>
                             <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', borderRadius: 2, boxShadow: 3 }}>
+                                {/* Image Carousel or Single Image */}
+                                {event.images && event.images.length > 0 ? (
+                                    <Carousel
+                                        autoPlay={false}
+                                        animation="slide"
+                                        indicators={event.images.length > 1}
+                                        navButtonsAlwaysVisible={event.images.length > 1}
+                                    >
+                                        {event.images.map((img, i) => (
+                                            <Box
+                                                key={i}
+                                                component="img"
+                                                src={img}
+                                                alt={`Event image ${i + 1}`}
+                                                sx={{ width: '100%', height: 200, objectFit: 'cover' }}
+                                            />
+                                        ))}
+                                    </Carousel>
+                                ) : event.mediaUrl ? (
+                                    <Box
+                                        component="img"
+                                        src={event.mediaUrl}
+                                        alt={event.title}
+                                        sx={{ width: '100%', height: 200, objectFit: 'cover' }}
+                                    />
+                                ) : null}
+
                                 <CardContent>
                                     <Typography variant="h6" component="h2" gutterBottom sx={{ fontWeight: 'bold' }}>
                                         {event.title}

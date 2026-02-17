@@ -10,7 +10,14 @@ interface AuthRequest extends Request {
 export const createListing = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
         const userId = req.user.userId;
-        const { businessName, category, description, address, contactPhone, website } = req.body;
+        const {
+            businessName, ownerName, category, description, shortDescription, address,
+            contactPhone, contactEmail, website, workingHours, logoUrl,
+            status, publishDate, expiryDate, visibility
+        } = req.body;
+
+        const uploadedLogo = (req as any).file ? (req as any).file.path : null;
+        const finalLogoUrl = uploadedLogo || logoUrl;
 
         if (!businessName || !category || !description || !address) {
             res.status(400).json({ message: 'Missing required fields' });
@@ -21,12 +28,20 @@ export const createListing = async (req: AuthRequest, res: Response): Promise<vo
             data: {
                 userId,
                 businessName,
+                ownerName,
                 category,
                 description,
+                shortDescription,
                 address,
                 contactPhone,
+                contactEmail,
                 website,
-                status: 'PENDING' // Default to pending approval
+                workingHours,
+                logoUrl: finalLogoUrl,
+                status: status || (req.user.role === 'ADMIN' ? 'APPROVED' : 'PENDING'),
+                publishDate: publishDate ? new Date(publishDate) : new Date(),
+                expiryDate: expiryDate ? new Date(expiryDate) : null,
+                visibility: visibility || 'ALL_MEMBERS'
             }
         });
 
@@ -42,7 +57,10 @@ export const getAllListings = async (req: Request, res: Response): Promise<void>
     try {
         const { category, search } = req.query;
 
-        const filter: any = { status: 'APPROVED' };
+        const filter: any = {
+            status: 'APPROVED',
+            publishDate: { lte: new Date() }
+        };
 
         if (category) {
             filter.category = category as string;

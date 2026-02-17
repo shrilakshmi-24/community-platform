@@ -9,7 +9,14 @@ interface AuthRequest extends Request {
 export const createCareerListing = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
         const userId = req.user.userId;
-        const { title, type, description, company, location, salaryRange } = req.body;
+        const {
+            title, type, description, shortDescription, company, companyLogo, location, salaryRange,
+            skills, experience, employmentType, applicationLink, applicationDeadline, contactEmail,
+            status, publishDate, expiryDate, visibility
+        } = req.body;
+
+        const uploadedLogo = (req as any).file ? (req as any).file.path : null;
+        const finalCompanyLogo = uploadedLogo || companyLogo;
 
         if (!title || !type || !description) {
             res.status(400).json({ message: 'Missing required fields' });
@@ -22,10 +29,21 @@ export const createCareerListing = async (req: AuthRequest, res: Response): Prom
                 title,
                 type,
                 description,
+                shortDescription,
                 company,
+                companyLogo: finalCompanyLogo,
                 location,
                 salaryRange,
-                status: 'PENDING'
+                skills: skills || [],
+                experience,
+                employmentType,
+                applicationLink,
+                applicationDeadline: applicationDeadline ? new Date(applicationDeadline) : null,
+                contactEmail,
+                status: status || 'PENDING',
+                publishDate: publishDate ? new Date(publishDate) : new Date(),
+                expiryDate: expiryDate ? new Date(expiryDate) : null,
+                visibility: visibility || 'ALL_MEMBERS'
             }
         });
 
@@ -40,7 +58,10 @@ export const getAllCareerListings = async (req: Request, res: Response): Promise
     try {
         const { type, search } = req.query;
 
-        const filter: any = { status: 'APPROVED' };
+        const filter: any = {
+            status: 'APPROVED',
+            publishDate: { lte: new Date() }
+        };
 
         if (type) {
             filter.type = type as string;

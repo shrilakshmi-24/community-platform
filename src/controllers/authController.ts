@@ -79,7 +79,13 @@ export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
 
         let user = await prisma.user.findUnique({
             where: { mobileNumber },
-            include: { profile: true } // Include profile to check status
+            include: {
+                profile: true,
+                businessListings: {
+                    where: { status: 'APPROVED' },
+                    select: { id: true }
+                }
+            }
         });
 
         // If using development OTP and user doesn't exist, create them
@@ -90,7 +96,10 @@ export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
                     role: 'MEMBER',
                     status: 'ACTIVE'
                 },
-                include: { profile: true }
+                include: {
+                    profile: true,
+                    businessListings: true
+                }
             });
         }
 
@@ -113,7 +122,8 @@ export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
             });
         }
 
-        const tokens = generateTokens(user.id, user.role);
+        const isBusinessOwner = user.businessListings && user.businessListings.length > 0;
+        const tokens = generateTokens(user.id, user.role, isBusinessOwner);
 
         // Check if profile is complete (basic check: has profile record and a name)
         const isProfileComplete = !!(user.profile && user.profile.fullName);
@@ -124,7 +134,8 @@ export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
                 id: user.id,
                 mobileNumber: user.mobileNumber,
                 role: user.role,
-                status: user.status
+                status: user.status,
+                isBusinessOwner
             },
             isProfileComplete,
             ...tokens

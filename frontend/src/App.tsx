@@ -22,6 +22,8 @@ import AboutUs from './pages/AboutUs';
 import DonationsPage from './pages/DonationsPage';
 import ScholarshipsPage from './pages/ScholarshipsPage';
 import AnnouncementsPage from './pages/AnnouncementsPage';
+import EducationLoanPage from './pages/EducationLoanPage';
+import BusinessCollaborationPage from './pages/BusinessCollaborationPage';
 
 // Admin Pages
 import AdminLayout from './layouts/AdminLayout';
@@ -110,6 +112,8 @@ const App = () => {
               <Route path="notifications" element={<NotificationsPage />} />
               <Route path="donations" element={<DonationsPage />} />
               <Route path="scholarships" element={<ScholarshipsPage />} />
+              <Route path="education-loan" element={<EducationLoanPage />} />
+              <Route path="business-collaboration" element={<BusinessCollaborationPage />} />
 
               {/* Profile section routes */}
               <Route path="profile/about-me" element={<AboutMe />} />

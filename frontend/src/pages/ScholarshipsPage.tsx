@@ -13,6 +13,7 @@ interface Scholarship {
     deadline: string;
     educationLevel: string;
     isClosed: boolean;
+    applicationLink?: string; // New field
 }
 
 const ScholarshipsPage = () => {
@@ -50,6 +51,11 @@ const ScholarshipsPage = () => {
     };
 
     const handleApplyClick = (scholarship: Scholarship) => {
+        if (scholarship.applicationLink) {
+            window.open(scholarship.applicationLink, '_blank', 'noopener,noreferrer');
+            return;
+        }
+
         setSelectedScholarship(scholarship);
         setOpenDialog(true);
         // Reset form
@@ -169,6 +175,12 @@ const ScholarshipsPage = () => {
                                     <Typography variant="caption" display="block" color="text.secondary">
                                         Deadline: {new Date(scholarship.deadline).toLocaleDateString()}
                                     </Typography>
+
+                                    {scholarship.applicationLink && (
+                                        <Typography variant="body2" sx={{ mt: 1, color: 'info.main', fontStyle: 'italic' }}>
+                                            * External Application
+                                        </Typography>
+                                    )}
                                 </CardContent>
                                 <Box sx={{ p: 2, pt: 0 }}>
                                     <Button
@@ -178,7 +190,7 @@ const ScholarshipsPage = () => {
                                         onClick={() => handleApplyClick(scholarship)}
                                         sx={{ bgcolor: '#8B2635', '&:hover': { bgcolor: '#A0522D' } }}
                                     >
-                                        {scholarship.isClosed ? 'Applications Closed' : 'Apply Now'}
+                                        {scholarship.isClosed ? 'Applications Closed' : (scholarship.applicationLink ? 'Apply External' : 'Apply Now')}
                                     </Button>
                                 </Box>
                             </Card>

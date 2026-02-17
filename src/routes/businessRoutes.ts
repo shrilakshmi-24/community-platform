@@ -8,8 +8,10 @@ const router = Router();
 // Public
 router.get('/all', getAllListings);
 
+import { upload } from '../utils/cloudinary';
+
 // Protected
-router.post('/create', authenticate, createListing);
+router.post('/create', authenticate, upload.single('logo'), createListing);
 router.get('/my-listings', authenticate, getMyListings);
 router.put('/:id', authenticate, updateListing);
 router.delete('/:id', authenticate, deleteListing);

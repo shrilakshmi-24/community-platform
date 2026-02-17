@@ -10,6 +10,7 @@ export const authenticate = (req: AuthRequest, res: Response, next: NextFunction
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        console.log('Auth Failure: No Bearer token');
         res.status(401).json({ message: 'Unauthorized: No token provided' });
         return;
     }
@@ -18,6 +19,7 @@ export const authenticate = (req: AuthRequest, res: Response, next: NextFunction
     const decoded = verifyAccessToken(token);
 
     if (!decoded) {
+        console.log('Auth Failure: Invalid/Expired token');
         res.status(401).json({ message: 'Unauthorized: Invalid token' });
         return;
     }

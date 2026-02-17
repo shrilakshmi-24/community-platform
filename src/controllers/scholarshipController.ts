@@ -5,15 +5,36 @@ import prisma from '../config/db';
 
 export const createScholarship = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { title, description, amount, deadline, educationLevel } = req.body;
+        const {
+            title, description, shortDescription, amount, deadline, educationLevel, applicationLink,
+            providerName, eligibility, requiredDocuments, contactEmail, contactPhone,
+            status, publishDate, expiryDate, visibility
+        } = req.body;
+
+        const mediaUrl = (req as any).file ? (req as any).file.path : null;
 
         const scholarship = await prisma.scholarship.create({
             data: {
                 title,
                 description,
+                shortDescription,
                 amount: parseFloat(amount),
                 deadline: new Date(deadline),
-                educationLevel
+                educationLevel,
+                applicationLink: applicationLink || null,
+
+                providerName,
+                eligibility,
+                requiredDocuments,
+                contactEmail,
+                contactPhone,
+
+                status: status || 'PENDING',
+                publishDate: publishDate ? new Date(publishDate) : new Date(),
+                expiryDate: expiryDate ? new Date(expiryDate) : null,
+                visibility: visibility || 'ALL_MEMBERS',
+                mediaUrl,
+                isActive: true // Maintain backward compatibility
             }
         });
 
@@ -89,7 +110,12 @@ export const updateApplicationStatus = async (req: Request, res: Response): Prom
 export const getAllScholarships = async (req: Request, res: Response): Promise<void> => {
     try {
         const scholarships = await prisma.scholarship.findMany({
-            where: { isActive: true }, // Only show active
+            where: {
+                OR: [
+                    { status: 'APPROVED', publishDate: { lte: new Date() } },
+                    { isActive: true } // Fallback for old data
+                ]
+            },
             orderBy: { deadline: 'asc' }
         });
 
@@ -97,7 +123,8 @@ export const getAllScholarships = async (req: Request, res: Response): Promise<v
         const now = new Date();
         const scholarshipWithStatus = scholarships.map(s => ({
             ...s,
-            isClosed: new Date(s.deadline) < now
+            isClosed: new Date(s.deadline) < now,
+            applicationLink: s.applicationLink // Ensure this field is exposed
         }));
 
         res.json({ scholarships: scholarshipWithStatus });

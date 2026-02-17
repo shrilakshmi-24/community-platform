@@ -14,7 +14,7 @@ router.post('/groups/join', authenticate, joinGroup);
 import { upload } from '../utils/cloudinary';
 
 // Events
-router.post('/events/create', authenticate, upload.single('media'), createEvent);
+router.post('/events/create', authenticate, upload.array('images', 5), createEvent);
 router.get('/events/all', getAllEvents);
 
 // Achievements
