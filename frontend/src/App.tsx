@@ -41,6 +41,12 @@ import AboutMe from './pages/profile/AboutMe';
 import Family from './pages/profile/Family';
 import Business from './pages/profile/Business';
 
+// Help Desk Pages
+import HelpRequestForm from './pages/help/HelpRequestForm';
+import HelpRequestList from './pages/help/HelpRequestList';
+import EmergencyRequests from './pages/help/EmergencyRequests';
+import AdminHelpDesk from './pages/admin/AdminHelpDesk';
+
 // Component to handle conditional home page rendering
 const HomePage = () => {
   const { isAuthenticated, isLoading } = useAuth();
@@ -95,6 +101,7 @@ const App = () => {
               <Route path="scholarships" element={<ScholarshipManager />} />
               <Route path="reports" element={<AdminReports />} />
               <Route path="create-content" element={<AdminContentCreation />} />
+              <Route path="help-desk" element={<AdminHelpDesk />} />
             </Route>
 
             {/* Protected authenticated routes */}
@@ -114,6 +121,10 @@ const App = () => {
               <Route path="scholarships" element={<ScholarshipsPage />} />
               <Route path="education-loan" element={<EducationLoanPage />} />
               <Route path="business-collaboration" element={<BusinessCollaborationPage />} />
+
+              {/* Help Desk Routes */}
+              <Route path="help/create" element={<HelpRequestForm />} />
+              <Route path="help/my-requests" element={<HelpRequestList />} />
 
               {/* Profile section routes */}
               <Route path="profile/about-me" element={<AboutMe />} />

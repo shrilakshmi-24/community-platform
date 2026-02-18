@@ -8,7 +8,7 @@ export const getStats = async (req: Request, res: Response): Promise<void> => {
         const pendingBusiness = await prisma.businessListing.count({ where: { status: 'PENDING' } });
         const pendingCareer = await prisma.careerListing.count({ where: { status: 'PENDING' } });
         const pendingEvents = await prisma.event.count({ where: { status: 'PENDING' } });
-        const pendingServices = await prisma.helpRequest.count({ where: { status: 'PENDING' } });
+        const pendingServices = await prisma.helpRequest.count({ where: { status: 'OPEN' } });
 
         res.json({
             users: { total: totalUsers, pending: pendingUsers },

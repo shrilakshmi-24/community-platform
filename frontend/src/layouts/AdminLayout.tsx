@@ -11,6 +11,7 @@ import SchoolIcon from '@mui/icons-material/School';
 import PostAddIcon from '@mui/icons-material/PostAdd';
 import MenuIcon from '@mui/icons-material/Menu';
 import LogoutIcon from '@mui/icons-material/Logout';
+import LiveHelpIcon from '@mui/icons-material/LiveHelp';
 import { useAuth } from '../context/AuthContext';
 
 const drawerWidth = 240;
@@ -34,6 +35,7 @@ const AdminLayout = () => {
         { text: 'Scholarships', icon: <SchoolIcon />, path: '/admin/scholarships' },
         { text: 'Create Content', icon: <PostAddIcon />, path: '/admin/create-content' },
         { text: 'Reports & Analytics', icon: <BarChartIcon />, path: '/admin/reports' },
+        { text: 'Help Desk', icon: <LiveHelpIcon />, path: '/admin/help-desk' },
     ];
 
     const drawer = (

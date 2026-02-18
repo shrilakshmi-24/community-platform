@@ -228,6 +228,21 @@ model CollaborationRequest {
   @@index([status])
 }
 
+enum HelpStatus {
+  OPEN
+  IN_PROGRESS
+  ON_HOLD
+  RESOLVED
+  CLOSED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
 model HelpRequest {
   id     String @id @default(uuid())
   userId String
@@ -235,16 +250,24 @@ model HelpRequest {
 
   title       String
   description String
-  category    String // Medical, Educational, Emergency
-
-  status     ListingStatus @default(PENDING)
-  isResolved Boolean       @default(false)
+  category    String // Medical, Blood, Financial, Emotional, Career
+  
+  // New Fields
+  priority    Priority   @default(MEDIUM)
+  location    String?    // For emergency/blood requests
+  bloodGroup  String?    // Specific for Blood Requirements
+  contactPhone String?   // Alternative contact if different from profile
+  isAnonymous Boolean    @default(false)
+  
+  status     HelpStatus @default(OPEN)
+  isResolved Boolean    @default(false) // Keep for backward compatibility, sync with status=RESOLVED
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([category])
   @@index([status])
+  @@index([priority])
 }
 
 // --------------------------------------
