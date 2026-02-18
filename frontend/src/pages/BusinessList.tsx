@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import PersonIcon from '@mui/icons-material/Person';
 import EmailIcon from '@mui/icons-material/Email';
 import PhoneIcon from '@mui/icons-material/Phone';
+import ShareIcon from '@mui/icons-material/Share';
 
 interface BusinessListing {
     id: string;
@@ -97,8 +98,6 @@ const BusinessList = () => {
                                     📍 {listing.address}
                                 </Typography>
 
-                                <Divider sx={{ my: 2 }} />
-
                                 {/* Owner Contact Information */}
                                 <Typography variant="subtitle2" color="primary" gutterBottom sx={{ fontWeight: 'bold' }}>
                                     Contact Information
@@ -135,19 +134,43 @@ const BusinessList = () => {
                                     </Box>
                                 )}
 
-                                {listing.website && (
+                                {/* Action Buttons */}
+                                <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
+                                    {listing.website && (
+                                        <Button
+                                            size="small"
+                                            variant="outlined"
+                                            color="primary"
+                                            href={listing.website}
+                                            target="_blank"
+                                            fullWidth
+                                        >
+                                            Visit Website
+                                        </Button>
+                                    )}
                                     <Button
                                         size="small"
                                         variant="outlined"
-                                        color="primary"
-                                        href={listing.website}
-                                        target="_blank"
-                                        sx={{ mt: 1 }}
+                                        color="secondary"
+                                        startIcon={<ShareIcon />}
                                         fullWidth
+                                        onClick={() => {
+                                            const shareData = {
+                                                title: listing.businessName,
+                                                text: `${listing.businessName}\n${listing.description}\nPhone: ${listing.contactPhone}`,
+                                                url: window.location.href
+                                            };
+                                            if (navigator.share) {
+                                                navigator.share(shareData).catch(console.error);
+                                            } else {
+                                                navigator.clipboard.writeText(`${shareData.title}\n${shareData.text}`);
+                                                alert('Business details copied to clipboard!');
+                                            }
+                                        }}
                                     >
-                                        Visit Website
+                                        Share
                                     </Button>
-                                )}
+                                </Box>
                             </CardContent>
                         </Card>
                     </Grid>
@@ -209,7 +232,7 @@ const BusinessList = () => {
                     <Button onClick={handleCreate}>Submit</Button>
                 </DialogActions>
             </Dialog>
-        </Container>
+        </Container >
     );
 };
 

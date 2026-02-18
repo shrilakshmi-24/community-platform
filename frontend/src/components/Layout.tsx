@@ -90,6 +90,15 @@ const Layout = () => {
                             <Button color="inherit" onClick={() => navigate('/about')}>About Us</Button>
                             <Button color="inherit" onClick={() => navigate('/notifications')}>Notifications</Button>
                             <Button color="inherit" onClick={() => navigate('/help/my-requests')}>Support</Button>
+                            <Button
+                                variant="contained"
+                                color="error"
+                                size="small"
+                                onClick={() => navigate('/help/emergency')}
+                                sx={{ ml: 1, fontWeight: 'bold' }}
+                            >
+                                Emergency
+                            </Button>
 
                             {/* Profile Dropdown */}
                             <IconButton

@@ -125,6 +125,7 @@ const App = () => {
               {/* Help Desk Routes */}
               <Route path="help/create" element={<HelpRequestForm />} />
               <Route path="help/my-requests" element={<HelpRequestList />} />
+              <Route path="help/emergency" element={<EmergencyRequests />} />
 
               {/* Profile section routes */}
               <Route path="profile/about-me" element={<AboutMe />} />
