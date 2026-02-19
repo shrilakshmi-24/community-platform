@@ -71,7 +71,7 @@ export const createAchievement = async (req: AuthRequest, res: Response): Promis
 export const getAllAchievements = async (req: Request, res: Response): Promise<void> => {
     try {
         const achievements = await prisma.achievement.findMany({
-            include: { user: { select: { profile: { select: { fullName: true } } } } },
+            include: { user: { select: { profile: { select: { fullName: true, avatarUrl: true } } } } },
             orderBy: { createdAt: 'desc' }
         });
         res.status(200).json({ achievements });

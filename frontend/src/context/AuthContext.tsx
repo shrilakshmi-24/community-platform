@@ -11,7 +11,11 @@ interface User {
     description: string;
     status: string;
     isBusinessOwner?: boolean;
-    // Add other fields from token if needed
+    profile?: {
+        fullName?: string;
+        avatarUrl?: string;
+        email?: string;
+    };
 }
 
 interface DecodedToken {

@@ -17,8 +17,18 @@ import { upload } from '../utils/cloudinary';
 router.post('/events/create', authenticate, upload.array('images', 5), createEvent);
 router.get('/events/all', getAllEvents);
 
+import { registerForEvent, cancelRegistration, getMyEventRegistrations } from '../controllers/communityController';
+router.post('/events/register', authenticate, registerForEvent);
+router.post('/events/cancel-registration', authenticate, cancelRegistration);
+router.get('/events/my-registrations', authenticate, getMyEventRegistrations);
+
 // Achievements
 router.get('/achievements/all', getAllAchievements);
+
+
+// Stats
+import { getCommunityStats } from '../controllers/communityController';
+router.get('/stats', getCommunityStats);
 
 // Donations
 import { recordDonation } from '../controllers/donationController';
@@ -29,5 +39,8 @@ router.post('/donations/record', optionalAuthenticate, recordDonation);
 import { getAllScholarships, applyForScholarship } from '../controllers/scholarshipController';
 router.get('/scholarships', getAllScholarships);
 router.post('/scholarships/apply', authenticate, applyForScholarship);
+
+import { getMyScholarshipApplications } from '../controllers/scholarshipController';
+router.get('/scholarships/my-applications', authenticate, getMyScholarshipApplications);
 
 export default router;

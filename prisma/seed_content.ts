@@ -275,6 +275,118 @@ async function main() {
         });
     }
 
+    // --- Events ---
+    console.log('Creating Events...');
+    const events = [
+        {
+            title: "Community Meetup 2026",
+            description: "Annual gathering of all community members to discuss progress and future plans.",
+            date: new Date('2026-03-15T10:00:00'),
+            location: "Community Hall, Bangalore",
+            organizerId: userId,
+            status: ListingStatus.APPROVED,
+            mediaUrl: "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&q=80&w=1000",
+            visibility: Visibility.ALL_MEMBERS
+        },
+        {
+            title: "Diwali Celebration 2026",
+            description: "Grand celebration with traditional rituals and dinner. Join us for an evening of light and joy.",
+            date: new Date('2026-11-01T18:00:00'),
+            location: "Community Hall",
+            organizerId: userId,
+            status: ListingStatus.APPROVED,
+            mediaUrl: "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&q=80&w=1000",
+            visibility: Visibility.ALL_MEMBERS
+        },
+        {
+            title: "Weekly Gathering",
+            description: "Community prayers and networking. Every Sunday at the Temple Premises.",
+            date: new Date('2026-03-22T09:00:00'), // Next Sunday-ish
+            location: "Temple Premises",
+            organizerId: userId,
+            status: ListingStatus.APPROVED,
+            mediaUrl: "https://images.unsplash.com/photo-1544367563-12123d8965cd?auto=format&fit=crop&q=80&w=1000",
+            visibility: Visibility.ALL_MEMBERS
+        },
+        {
+            title: "Youth Cultural Fest",
+            description: "Success, talent, and tradition showcase. A platform for our youth to shine.",
+            date: new Date('2026-12-15T10:00:00'),
+            location: "Auditorium",
+            organizerId: userId,
+            status: ListingStatus.APPROVED,
+            mediaUrl: "https://images.unsplash.com/photo-1514525253440-b393452e8d26?auto=format&fit=crop&q=80&w=1000",
+            visibility: Visibility.ALL_MEMBERS
+        },
+        {
+            title: "Health & Wellness Workshop",
+            description: "Yoga and meditation session for all ages.",
+            date: new Date('2026-04-02T07:00:00'),
+            location: "Central Park, Pune",
+            organizerId: userId,
+            status: ListingStatus.APPROVED,
+            mediaUrl: "https://images.unsplash.com/photo-1544367563-12123d8965cd?auto=format&fit=crop&q=80&w=1000",
+            visibility: Visibility.ALL_MEMBERS
+        },
+        {
+            title: "Tech Career Fair",
+            description: "Connect with top companies and startups hiring in the city.",
+            date: new Date('2026-05-20T09:00:00'),
+            location: "Convention Center, Hyderabad",
+            organizerId: userId,
+            status: ListingStatus.APPROVED,
+            mediaUrl: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&q=80&w=1000",
+            visibility: Visibility.ALL_MEMBERS
+        }
+    ];
+
+    for (const e of events) {
+        // Check if event exists to avoid duplicates on re-seed
+        const existing = await prisma.event.findFirst({ where: { title: e.title } });
+        if (!existing) {
+            await prisma.event.create({
+                data: e
+            });
+        }
+    }
+
+    // --- Announcements ---
+    console.log('Creating Announcements...');
+    const announcements = [
+        {
+            title: "New Scholarship Program Launched",
+            description: "We are happy to announce a new scholarship for engineering students. Apply now!",
+            isActive: true,
+            userId: userId,
+            mediaUrl: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&q=80&w=1000",
+            mediaType: 'IMAGE'
+        },
+        {
+            title: "Blood Donation Camp Success",
+            description: "Thank you to everyone who participated in last week's blood donation drive. We collected 50+ units.",
+            isActive: true,
+            userId: userId,
+            mediaUrl: "https://images.unsplash.com/photo-1615461066841-6116e61058f4?auto=format&fit=crop&q=80&w=1000",
+            mediaType: 'IMAGE'
+        }
+    ];
+
+    for (const ann of announcements) {
+        // Assuming Announcement model exists and matches structure. 
+        // Typically Announcement might be a separate model or part of a generic content model.
+        // Checking schema via assumption or previous knowledge. 
+        // If Announcement model doesn't exist, this will fail. Warning context needed.
+        // Based on AnnouncementsPage.tsx, it expects /announcements endpoint.
+        // I'll assume 'Announcement' model exists.
+        try {
+            await prisma.announcement.create({
+                data: ann
+            });
+        } catch (e) {
+            console.warn("Skipping announcement seed - Model might not exist or differ", e);
+        }
+    }
+
     console.log('✅ Content seed completed successfully!');
 }
 

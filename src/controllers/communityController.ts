@@ -226,3 +226,111 @@ export const getAllEvents = async (req: Request, res: Response): Promise<void> =
         res.status(500).json({ message: 'Server error', error });
     }
 };
+
+// EVENT REGISTRATION
+export const registerForEvent = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const userId = req.user.userId;
+        const { eventId } = req.body;
+
+        if (!eventId) {
+            res.status(400).json({ message: 'Event ID is required' });
+            return;
+        }
+
+        const event = await prisma.event.findUnique({ where: { id: eventId } });
+        if (!event) {
+            res.status(404).json({ message: 'Event not found' });
+            return;
+        }
+
+        const existingRegistration = await prisma.eventRegistration.findUnique({
+            where: { eventId_userId: { eventId, userId } }
+        });
+
+        if (existingRegistration) {
+            if (existingRegistration.status === 'CANCELLED') {
+                // Re-register
+                await prisma.eventRegistration.update({
+                    where: { id: existingRegistration.id },
+                    data: { status: 'REGISTERED' }
+                });
+                res.status(200).json({ message: 'Registration reactivated successfully' });
+                return;
+            }
+            res.status(400).json({ message: 'Already registered for this event' });
+            return;
+        }
+
+        await prisma.eventRegistration.create({
+            data: { eventId, userId }
+        });
+
+        res.status(201).json({ message: 'Registered successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error', error });
+    }
+};
+
+export const cancelRegistration = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const userId = req.user.userId;
+        const { eventId } = req.body;
+
+        await prisma.eventRegistration.update({
+            where: { eventId_userId: { eventId, userId } },
+            data: { status: 'CANCELLED' }
+        });
+
+        res.status(200).json({ message: 'Registration cancelled' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error', error });
+    }
+};
+
+export const getMyEventRegistrations = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const userId = req.user.userId;
+        const registrations = await prisma.eventRegistration.findMany({
+            where: { userId, status: 'REGISTERED' },
+            select: { eventId: true }
+        });
+        res.status(200).json({ registrations });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error', error });
+    }
+};
+export const getCommunityStats = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const [
+            usersCount,
+            businessesCount,
+            eventsCount,
+            scholarships,
+            donations
+        ] = await Promise.all([
+            prisma.user.count(),
+            prisma.businessListing.count({ where: { status: 'APPROVED' } }),
+            prisma.event.count({ where: { status: 'APPROVED' } }),
+            prisma.scholarship.aggregate({ _sum: { amount: true } }),
+            prisma.donation.aggregate({ _sum: { collectedAmount: true } })
+        ]);
+
+        const totalSupport = (scholarships._sum.amount || 0) + (donations._sum.collectedAmount || 0);
+
+        res.status(200).json({
+            stats: {
+                families: usersCount,
+                businesses: businessesCount,
+                events: eventsCount,
+                supportGiven: totalSupport
+            }
+        });
+    } catch (error) {
+        console.error('Error fetching community stats:', error);
+        res.status(500).json({ message: 'Server error', error });
+    }
+};

@@ -82,6 +82,7 @@ model User {
   ownedGroups      Group[]           @relation("GroupOwner")
   groupMemberships GroupMember[]
   organizedEvents  Event[]
+  eventRegistrations EventRegistration[]
   achievements     Achievement[]
   supportRequests  SupportRequest[]
   notifications    Notification[]
@@ -336,6 +337,20 @@ model Event {
   updatedAt DateTime      @updatedAt
 
   @@index([date])
+  registrations EventRegistration[]
+}
+
+model EventRegistration {
+  id        String   @id @default(uuid())
+  eventId   String
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status    String   @default("REGISTERED") // REGISTERED, CANCELLED, ATTENDED
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([eventId, userId])
 }
 
 model Achievement {

@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
-import prisma from '../config/db';
+import { PrismaClient, ListingStatus } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 export const getStats = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -8,7 +10,7 @@ export const getStats = async (req: Request, res: Response): Promise<void> => {
         const pendingBusiness = await prisma.businessListing.count({ where: { status: 'PENDING' } });
         const pendingCareer = await prisma.careerListing.count({ where: { status: 'PENDING' } });
         const pendingEvents = await prisma.event.count({ where: { status: 'PENDING' } });
-        const pendingServices = await prisma.helpRequest.count({ where: { status: 'OPEN' } });
+        const pendingServices = await prisma.helpRequest.count({ where: { status: 'OPEN' as any } });
 
         res.json({
             users: { total: totalUsers, pending: pendingUsers },
@@ -90,13 +92,30 @@ export const verifyUser = async (req: Request, res: Response): Promise<void> => 
 
 export const getContent = async (req: Request, res: Response): Promise<void> => {
     const status = req.query.status as string;
-    const where: any = (status && status !== 'ALL') ? { status } : {};
+
+    // Status mapping for Help Requests (which use different Enum)
+    let helpRequestStatus: any = undefined;
+    if (status) {
+        if (status === 'PENDING') helpRequestStatus = 'OPEN';
+        else if (status === 'APPROVED') helpRequestStatus = 'IN_PROGRESS'; // or RESOLVED
+        else if (status === 'REJECTED') helpRequestStatus = 'CLOSED';
+        else if (status === 'ALL') helpRequestStatus = undefined;
+    }
+
+    const whereGeneric: any = (status && status !== 'ALL') ? { status } : {};
+    const whereHelp: any = helpRequestStatus ? { status: helpRequestStatus } : {};
 
     try {
-        const business = await prisma.businessListing.findMany({ where, include: { user: { select: { profile: { select: { fullName: true } } } } }, orderBy: { createdAt: 'desc' } });
-        const career = await prisma.careerListing.findMany({ where, include: { user: { select: { profile: { select: { fullName: true } } } } }, orderBy: { createdAt: 'desc' } });
-        const events = await prisma.event.findMany({ where, include: { organizer: { select: { profile: { select: { fullName: true } } } } }, orderBy: { createdAt: 'desc' } });
-        const services = await prisma.helpRequest.findMany({ where, include: { user: { select: { profile: { select: { fullName: true } } } } }, orderBy: { createdAt: 'desc' } });
+        const business = await prisma.businessListing.findMany({ where: whereGeneric, include: { user: { select: { profile: { select: { fullName: true } } } } }, orderBy: { createdAt: 'desc' } });
+        const career = await prisma.careerListing.findMany({ where: whereGeneric, include: { user: { select: { profile: { select: { fullName: true } } } } }, orderBy: { createdAt: 'desc' } });
+        const events = await prisma.event.findMany({ where: whereGeneric, include: { organizer: { select: { profile: { select: { fullName: true } } } } }, orderBy: { createdAt: 'desc' } });
+
+        // HelpRequests use a different status enum
+        const services = await prisma.helpRequest.findMany({
+            where: whereHelp,
+            include: { user: { select: { profile: { select: { fullName: true } } } } },
+            orderBy: { createdAt: 'desc' }
+        });
 
         res.json({ business, career, events, services });
     } catch (error) {
@@ -281,7 +300,17 @@ export const getDonationTransactions = async (req: Request, res: Response): Prom
     try {
         const transactions = await prisma.donationTransaction.findMany({
             include: {
-                donation: { select: { title: true } }
+                donation: { select: { title: true } },
+                donorUser: {
+                    select: {
+                        profile: {
+                            select: {
+                                fullName: true,
+                                email: true
+                            }
+                        }
+                    }
+                }
             },
             orderBy: { createdAt: 'desc' }
         });

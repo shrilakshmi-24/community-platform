@@ -17,12 +17,23 @@ const PublicLayout = () => {
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-            <AppBar position="sticky" sx={{ bgcolor: colors.primary }}>
+            <AppBar position="sticky" sx={{
+                bgcolor: 'rgba(255, 255, 255, 0.8)',
+                backdropFilter: 'blur(20px)',
+                boxShadow: '0 4px 30px rgba(0, 0, 0, 0.05)',
+                borderBottom: '1px solid rgba(0, 0, 0, 0.05)',
+                color: '#2D2D2D'
+            }}>
                 <Container maxWidth="lg">
                     <Toolbar sx={{ justifyContent: 'space-between', py: 1 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => navigate('/')}>
-                            <TempleHinduIcon sx={{ fontSize: 32, mr: 1.5 }} />
-                            <Typography variant="h6" component="div" fontWeight={700}>
+                            <TempleHinduIcon sx={{ fontSize: 32, mr: 1.5, color: colors.primary }} />
+                            <Typography variant="h6" component="div" fontWeight={800} sx={{
+                                background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                                letterSpacing: '-0.02em'
+                            }}>
                                 Arya Vyshya Community
                             </Typography>
                         </Box>
@@ -30,7 +41,7 @@ const PublicLayout = () => {
                             <Button
                                 color="inherit"
                                 onClick={() => navigate('/')}
-                                sx={{ fontWeight: 600 }}
+                                sx={{ fontWeight: 600, borderRadius: 50 }}
                             >
                                 Home
                             </Button>
@@ -38,7 +49,7 @@ const PublicLayout = () => {
                                 color="inherit"
                                 startIcon={<EventIcon />}
                                 onClick={() => navigate('/events')}
-                                sx={{ fontWeight: 600 }}
+                                sx={{ fontWeight: 600, borderRadius: 50 }}
                             >
                                 Events
                             </Button>
@@ -46,7 +57,7 @@ const PublicLayout = () => {
                                 color="inherit"
                                 startIcon={<InfoIcon />}
                                 onClick={() => navigate('/about')}
-                                sx={{ fontWeight: 600 }}
+                                sx={{ fontWeight: 600, borderRadius: 50 }}
                             >
                                 About Us
                             </Button>
@@ -55,11 +66,16 @@ const PublicLayout = () => {
                                 startIcon={<LoginIcon />}
                                 onClick={() => navigate('/login')}
                                 sx={{
-                                    bgcolor: 'white',
-                                    color: colors.primary,
+                                    bgcolor: colors.primary,
+                                    color: 'white',
                                     fontWeight: 700,
+                                    borderRadius: 50,
+                                    px: 3,
+                                    boxShadow: '0 4px 15px rgba(139, 38, 53, 0.3)',
                                     '&:hover': {
-                                        bgcolor: '#f5f5f5'
+                                        bgcolor: colors.secondary,
+                                        transform: 'translateY(-2px)',
+                                        boxShadow: '0 6px 20px rgba(139, 38, 53, 0.4)',
                                     }
                                 }}
                             >

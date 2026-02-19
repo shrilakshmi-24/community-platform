@@ -123,10 +123,13 @@ const DonationManager = () => {
                         {transactions.map((tx) => (
                             <TableRow key={tx.id}>
                                 <TableCell>
-                                    <Typography variant="body2" sx={{ fontWeight: 'bold' }}> {/* Changed fontWeight="bold" to sx={{ fontWeight: 'bold' }} */}
-                                        {tx.donorName || 'Anonymous'} {/* Changed from tx.user?.profile?.fullName to tx.donorName */}
+                                    <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                                        {/* Priority: User Profile Name > Explicit Donor Name > Anonymous */}
+                                        {(tx as any).user?.profile?.fullName || tx.donorName || 'Anonymous'}
                                     </Typography>
-                                    <Typography variant="caption" color="textSecondary">{tx.donorEmail}</Typography> {/* Changed from tx.user?.email to tx.donorEmail */}
+                                    <Typography variant="caption" color="textSecondary">
+                                        {(tx as any).user?.email || tx.donorEmail}
+                                    </Typography>
                                 </TableCell>
                                 <TableCell sx={{ fontWeight: 'bold' }}>₹{tx.amount.toLocaleString()}</TableCell>
                                 <TableCell>{new Date(tx.createdAt).toLocaleDateString()}</TableCell> {/* Added Date cell, using createdAt */}

@@ -215,3 +215,28 @@ export const applyForScholarship = async (req: Request, res: Response): Promise<
         res.status(500).json({ message: 'Error submitting application', error });
     }
 };
+
+export const getMyScholarshipApplications = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const userId = (req as any).user.userId;
+        const applications = await prisma.scholarshipApplication.findMany({
+            where: { applicantId: userId },
+            include: {
+                scholarship: {
+                    select: {
+                        title: true,
+                        amount: true,
+                        deadline: true,
+                        educationLevel: true
+                    }
+                }
+            },
+            orderBy: { appliedAt: 'desc' }
+        });
+
+        res.status(200).json({ applications });
+    } catch (error) {
+        console.error('Error fetching my applications:', error);
+        res.status(500).json({ message: 'Error fetching applications', error });
+    }
+};

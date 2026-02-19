@@ -16,7 +16,7 @@ const ContentModeration = () => {
     const [tabValue, setTabValue] = useState(0);
     const [content, setContent] = useState<{ business: unknown[]; career: unknown[]; events: unknown[]; services: unknown[] }>({ business: [], career: [], events: [], services: [] });
     const [loading, setLoading] = useState(true);
-    const [statusFilter, setStatusFilter] = useState('PENDING');
+    const [statusFilter, setStatusFilter] = useState('ALL');
 
     const fetchContent = useCallback(async () => {
         try {

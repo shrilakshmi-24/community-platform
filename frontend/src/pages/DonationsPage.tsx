@@ -1,152 +1,113 @@
-import { useState } from 'react';
-import { Container, Typography, Box, Card, CardContent, Button, Grid, Divider, TextField, InputAdornment, Alert, CircularProgress } from '@mui/material';
+import { useState, useEffect } from 'react';
+import { Container, Typography, Box, Card, CardContent, Button, LinearProgress, Skeleton, GridLegacy as Grid } from '@mui/material';
 import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import QrCode2Icon from '@mui/icons-material/QrCode2';
-import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
-import client from '../api/client';
-import { useAuth } from '../context/AuthContext';
+import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 
 const DonationsPage = () => {
-    useAuth();
-    const [amount, setAmount] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [success, setSuccess] = useState('');
-    const [error, setError] = useState('');
+    const [campaigns, setCampaigns] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    const handleDonate = async () => {
-        if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
-            setError('Please enter a valid donation amount.');
-            return;
-        }
-
-        setLoading(true);
-        setError('');
-        setSuccess('');
-
-        try {
-            await client.post('/community/donations/record', {
-                amount: Number(amount),
-                donationId: null, // Use default
-                paymentMethod: 'ONLINE'
-            });
-            setSuccess(`Thank you! Your donation of ₹${amount} has been successfully recorded.`);
-            setAmount('');
-        } catch (err) {
-            console.error('Donation failed', err);
-            setError('Failed to record donation. Please try again.');
-        } finally {
+    useEffect(() => {
+        // Mock data for UI
+        setTimeout(() => {
+            setCampaigns([
+                { id: 1, title: 'Community Hall Renovation', target: 500000, raised: 320000, description: 'Upgrading the sound system and seating for better events.' },
+                { id: 2, title: 'Medical Emergency Fund', target: 200000, raised: 150000, description: 'Immediate support for families in need.' }
+            ]);
             setLoading(false);
-        }
-    };
+        }, 1000);
+    }, []);
 
     return (
-        <Container component="main" maxWidth="md">
-            <Box sx={{ mt: 4, mb: 8, textAlign: 'center' }}>
-                <Typography variant="h3" component="h1" gutterBottom sx={{ fontWeight: 'bold', color: '#8B2635' }}>
-                    Support Our Community
-                </Typography>
-                <Typography variant="h6" color="text.secondary" paragraph sx={{ maxWidth: 600, mx: 'auto', mb: 6 }}>
-                    Your generous contributions help us organize cultural events, support community businesses, and maintain this platform for everyone.
-                </Typography>
-
-                {/* Donation Input Section */}
-                <Box sx={{ maxWidth: 400, mx: 'auto', mb: 6, p: 3, bgcolor: '#fff', borderRadius: 2, boxShadow: 1 }}>
-                    <Typography variant="h6" gutterBottom>
-                        Make a Contribution
+        <Box sx={{ minHeight: '100vh', bgcolor: '#f8f9fa', pt: 6, pb: 10 }}>
+            <Container maxWidth="lg">
+                <Box sx={{ textAlign: 'center', mb: 8 }}>
+                    <Typography variant="h3" fontWeight={800} sx={{ color: '#1e293b', mb: 2 }}>
+                        Support Causes
                     </Typography>
-                    {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
-                    {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-
-                    <TextField
-                        fullWidth
-                        label="Amount"
-                        variant="outlined"
-                        type="number"
-                        value={amount}
-                        onChange={(e) => setAmount(e.target.value)}
-                        InputProps={{
-                            startAdornment: <InputAdornment position="start">₹</InputAdornment>,
-                        }}
-                        sx={{ mb: 2 }}
-                    />
-                    <Button
-                        fullWidth
-                        variant="contained"
-                        size="large"
-                        onClick={handleDonate}
-                        disabled={loading}
-                        sx={{ bgcolor: '#8B2635', '&:hover': { bgcolor: '#A0522D' } }}
-                    >
-                        {loading ? <CircularProgress size={24} color="inherit" /> : 'Donate Now'}
-                    </Button>
+                    <Typography variant="body1" sx={{ color: '#64748b' }}>
+                        Your contribution helps build a stronger community.
+                    </Typography>
                 </Box>
 
-                <Grid container spacing={4} justifyContent="center">
-                    {/* Bank Transfer Option */}
-                    <Grid size={{ xs: 12, md: 5 }}>
-                        <Card sx={{ height: '100%', borderRadius: 3, boxShadow: 3, border: '1px solid #e0e0e0' }}>
-                            <CardContent sx={{ p: 4 }}>
-                                <AccountBalanceIcon sx={{ fontSize: 60, color: '#8B2635', mb: 2 }} />
-                                <Typography variant="h5" gutterBottom fontWeight="bold">
-                                    Bank Transfer
-                                </Typography>
-                                <Divider sx={{ my: 2 }} />
-                                <Box sx={{ textAlign: 'left', mt: 2 }}>
-                                    <Typography variant="body1" gutterBottom><strong>Account Name:</strong> Arya Vyshya Samaj</Typography>
-                                    <Typography variant="body1" gutterBottom><strong>Bank:</strong> City Community Bank</Typography>
-                                    <Typography variant="body1" gutterBottom><strong>Account No:</strong> 1234 5678 9012</Typography>
-                                    <Typography variant="body1" gutterBottom><strong>IFSC Code:</strong> CITY0001234</Typography>
-                                </Box>
-                            </CardContent>
-                        </Card>
+                <Grid container spacing={4}>
+                    <Grid item xs={12} md={8}>
+                        <Typography variant="h5" fontWeight={700} sx={{ color: '#334155', mb: 3 }}>
+                            Active Campaigns
+                        </Typography>
+                        {loading ? (
+                            <Skeleton height={200} sx={{ borderRadius: 3 }} />
+                        ) : campaigns.map((campaign) => (
+                            <Card key={campaign.id} sx={{ mb: 3, borderRadius: 3, border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.05)' }}>
+                                <CardContent sx={{ p: 4 }}>
+                                    <Grid container spacing={3}>
+                                        <Grid item xs={12} sm={8}>
+                                            <Typography variant="h6" fontWeight={800} sx={{ color: '#1e293b', mb: 1 }}>
+                                                {campaign.title}
+                                            </Typography>
+                                            <Typography variant="body2" sx={{ color: '#64748b', mb: 3 }}>
+                                                {campaign.description}
+                                            </Typography>
+
+                                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+                                                <Typography variant="caption" fontWeight={700} color="primary">
+                                                    Raised: ₹{(campaign.raised / 1000).toFixed(0)}k
+                                                </Typography>
+                                                <Typography variant="caption" fontWeight={700} sx={{ color: '#94a3b8' }}>
+                                                    Goal: ₹{(campaign.target / 1000).toFixed(0)}k
+                                                </Typography>
+                                            </Box>
+                                            <LinearProgress
+                                                variant="determinate"
+                                                value={(campaign.raised / campaign.target) * 100}
+                                                sx={{ height: 8, borderRadius: 4, bgcolor: '#f1f5f9', '& .MuiLinearProgress-bar': { bgcolor: '#2563eb' } }}
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12} sm={4} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                            <Button
+                                                variant="contained"
+                                                fullWidth
+                                                startIcon={<VolunteerActivismIcon />}
+                                                sx={{
+                                                    bgcolor: '#059669',
+                                                    color: 'white', fontWeight: 700,
+                                                    py: 1.5, borderRadius: 2,
+                                                    boxShadow: '0 4px 6px -1px rgba(5, 150, 105, 0.2)',
+                                                    '&:hover': { bgcolor: '#047857' }
+                                                }}
+                                            >
+                                                DONATE NOW
+                                            </Button>
+                                        </Grid>
+                                    </Grid>
+                                </CardContent>
+                            </Card>
+                        ))}
                     </Grid>
 
-                    {/* QR Code Option */}
-                    <Grid size={{ xs: 12, md: 5 }}>
-                        <Card sx={{ height: '100%', borderRadius: 3, boxShadow: 3, border: '1px solid #e0e0e0' }}>
-                            <CardContent sx={{ p: 4 }}>
-                                <QrCode2Icon sx={{ fontSize: 60, color: '#8B2635', mb: 2 }} />
-                                <Typography variant="h5" gutterBottom fontWeight="bold">
-                                    Scan to Pay
-                                </Typography>
-                                <Divider sx={{ my: 2 }} />
-                                {/* Placeholder for actual QR image */}
-                                <Box sx={{
-                                    width: 200,
-                                    height: 200,
-                                    mx: 'auto',
-                                    bgcolor: '#f5f5f5',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    borderRadius: 2,
-                                    border: '2px dashed #999',
-                                    mb: 2
-                                }}>
-                                    <Typography variant="body2" color="text.secondary">QR Code Placeholder</Typography>
-                                </Box>
-                                <Typography variant="caption" display="block" color="text.secondary">
-                                    Accepts UPI, GPay, PhonePe
-                                </Typography>
-                            </CardContent>
+                    <Grid item xs={12} md={4}>
+                        <Typography variant="h5" fontWeight={700} sx={{ color: '#334155', mb: 3 }}>
+                            Scan to Pay
+                        </Typography>
+                        <Card sx={{ borderRadius: 3, border: '1px solid #e2e8f0', textAlign: 'center', p: 4 }}>
+                            <Box sx={{ bgcolor: 'white', p: 2, borderRadius: 2, border: '1px dashed #cbd5e1', display: 'inline-block', mb: 3 }}>
+                                <QrCode2Icon sx={{ fontSize: 150, color: '#1e293b' }} />
+                            </Box>
+                            <Typography variant="h6" fontWeight={800} sx={{ color: '#1e293b' }}>
+                                Arya Vaishya Community Fund
+                            </Typography>
+                            <Typography variant="body2" sx={{ color: '#64748b', mb: 3 }}>
+                                UPI ID:gavs.community@upi
+                            </Typography>
+                            <Button variant="outlined" startIcon={<CurrencyRupeeIcon />} fullWidth sx={{ borderColor: '#cbd5e1', color: '#475569' }}>
+                                Copy UPI ID
+                            </Button>
                         </Card>
                     </Grid>
                 </Grid>
-
-                <Box sx={{ mt: 8, p: 4, bgcolor: '#FFF8F0', borderRadius: 3 }}>
-                    <VolunteerActivismIcon sx={{ fontSize: 48, color: '#CD853F', mb: 2 }} />
-                    <Typography variant="h5" gutterBottom fontWeight="bold">
-                        Why Donate?
-                    </Typography>
-                    <Typography variant="body1" paragraph>
-                        100% of your donations go directly towards community welfare initiatives, including educational scholarships, emergency medical aid, and cultural festivals.
-                    </Typography>
-                    <Button variant="contained" size="large" sx={{ mt: 2, bgcolor: '#8B2635', '&:hover': { bgcolor: '#A0522D' } }} onClick={() => document.documentElement.scrollTop = 0}>
-                        Scroll to Donate
-                    </Button>
-                </Box>
-            </Box>
-        </Container>
+            </Container>
+        </Box>
     );
 };
 

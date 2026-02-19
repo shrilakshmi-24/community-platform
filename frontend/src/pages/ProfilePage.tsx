@@ -1,177 +1,141 @@
-
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import client from '../api/client';
-import { Container, Typography, Button, TextField, Box, Grid, Skeleton } from '@mui/material';
+import { Container, Typography, Button, TextField, Box, Skeleton, Avatar, Paper, IconButton, Chip, Stack, GridLegacy as Grid } from '@mui/material';
 import { useToast } from '../context/ToastContext';
-
-interface UserProfile {
-    user: {
-        id: string;
-        mobileNumber: string;
-        role: string;
-    };
-    firstName?: string;
-    lastName?: string;
-    email?: string;
-    bio?: string;
-    city?: string;
-    state?: string;
-    [key: string]: unknown;
-}
+import EditIcon from '@mui/icons-material/Edit';
+import SaveIcon from '@mui/icons-material/Save';
+import PhotoCamera from '@mui/icons-material/PhotoCamera';
+import VerifiedIcon from '@mui/icons-material/Verified';
+import { motion } from 'framer-motion';
 
 const ProfilePage = () => {
-    const [profile, setProfile] = useState<UserProfile | null>(null);
-
+    const [profile, setProfile] = useState<any>(null);
     const [loading, setLoading] = useState(true);
-
+    const [editing, setEditing] = useState(false);
+    const [formData, setFormData] = useState<any>({});
     const { showToast } = useToast();
 
     useEffect(() => {
         const fetchProfile = async () => {
             try {
                 const { data } = await client.get('/profile/me');
-                setProfile({ ...(data.profile || {}), user: data.user }); // Merge profile and user data
+                setProfile(data.profile);
+                setFormData(data.profile);
+            } catch (error) {
+                console.error(error);
+            } finally {
                 setLoading(false);
-            } catch (error: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
-                console.error('Failed to fetch profile', error);
-                setLoading(false);
-
-                // Set user-friendly error message via Toast
-                if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
-                    showToast('Unable to connect to the server. Please make sure the backend is running.', 'error');
-                } else if (error.response?.status === 401) {
-                    showToast('Please log in to view your profile.', 'error');
-                } else {
-                    showToast('Failed to load profile. Please try again later.', 'error');
-                }
             }
         };
-
         fetchProfile();
-    }, [showToast]);
+    }, []);
 
-
-    const handleUpdate = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleSave = async () => {
         try {
-            await client.put('/profile/update', profile);
-            showToast('Profile updated successfully', 'success');
+            await client.put('/profile/update', formData);
+            setProfile(formData);
+            setEditing(false);
+            showToast('Profile Updated', 'success');
         } catch (error) {
-            console.error('Failed to update profile', error);
-            showToast('Failed to update profile. Please try again.', 'error');
+            showToast('Update Failed', 'error');
         }
     };
 
-    if (loading) {
-        return (
-            <Container component="main" maxWidth="md">
-                <Box sx={{ mt: 4 }}>
-                    <Typography variant="h4" component="h1" gutterBottom>
-                        My Profile
-                    </Typography>
-                    <Skeleton variant="rectangular" height={200} sx={{ mb: 2, borderRadius: 1 }} />
-                    <Skeleton variant="text" height={40} />
-                    <Skeleton variant="text" height={40} />
-                </Box>
-            </Container>
-        );
-    }
-
-    if (!profile) {
-        return (
-            <Container component="main" maxWidth="md">
-                <Box sx={{ mt: 4 }}>
-                    <Typography variant="h4" component="h1" gutterBottom>
-                        My Profile
-                    </Typography>
-                    <Typography variant="body1">
-                        No profile data available.
-                    </Typography>
-                </Box>
-            </Container>
-        );
-    }
+    if (loading) return <Box sx={{ bgcolor: '#f8f9fa', height: '100vh', pt: 10 }}><Container><Skeleton height={400} sx={{ borderRadius: 4 }} /></Container></Box>;
 
     return (
-        <Container component="main" maxWidth="md">
-            <Box sx={{ mt: 4, mb: 4 }}>
-                <Typography variant="h4" component="h1" gutterBottom>
-                    My Profile
-                </Typography>
+        <Box sx={{ minHeight: '100vh', bgcolor: '#f8f9fa', pt: 6, pb: 10 }}>
+            <Container maxWidth="md">
+                <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
+                    <Paper sx={{
+                        p: 4,
+                        bgcolor: 'white',
+                        borderRadius: 4,
+                        border: '1px solid #e2e8f0',
+                        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.05)',
+                        mb: 6
+                    }}>
+                        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: 'center', gap: 4 }}>
+                            <Box sx={{ position: 'relative' }}>
+                                <Avatar
+                                    src={profile?.avatarUrl}
+                                    sx={{
+                                        width: 120, height: 120,
+                                        border: '4px solid white',
+                                        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                                    }}
+                                />
+                                <IconButton
+                                    sx={{
+                                        position: 'absolute', bottom: 0, right: 0,
+                                        bgcolor: 'white', color: '#64748b',
+                                        border: '1px solid #e2e8f0',
+                                        '&:hover': { bgcolor: '#f1f5f9' }
+                                    }}
+                                    size="small"
+                                >
+                                    <PhotoCamera fontSize="small" />
+                                </IconButton>
+                            </Box>
 
-                <Box component="form" onSubmit={handleUpdate} noValidate sx={{ mt: 2 }}>
-                    <Grid container spacing={2}>
-                        <Grid size={{ xs: 12, sm: 6 }}>
-                            <TextField
-                                fullWidth
-                                label="Mobile Number"
-                                value={profile.user?.mobileNumber || ''}
-                                disabled
-                            />
-                        </Grid>
-                        <Grid size={{ xs: 12, sm: 6 }}>
-                            <TextField
-                                name="firstName"
-                                label="First Name"
-                                fullWidth
-                                value={profile.firstName || ''}
-                                onChange={(e) => setProfile(prev => prev ? { ...prev, firstName: e.target.value } : null)}
-                            />
-                        </Grid>
-                        <Grid size={{ xs: 12, sm: 6 }}>
-                            <TextField
-                                name="lastName"
-                                label="Last Name"
-                                fullWidth
-                                value={profile.lastName || ''}
-                                onChange={(e) => setProfile(prev => prev ? { ...prev, lastName: e.target.value } : null)}
-                            />
-                        </Grid>
-                        <Grid size={{ xs: 12 }}>
-                            <TextField
-                                name="email"
-                                label="Email Address"
-                                fullWidth
-                                value={profile.email || ''}
-                                onChange={(e) => setProfile(prev => prev ? { ...prev, email: e.target.value } : null)}
-                            />
-                        </Grid>
-                        <Grid size={{ xs: 12 }}>
-                            <TextField
-                                name="bio"
-                                label="Bio"
-                                fullWidth
-                                multiline
-                                rows={4}
-                                value={profile.bio || ''}
-                                onChange={(e) => setProfile(prev => prev ? { ...prev, bio: e.target.value } : null)}
-                            />
-                        </Grid>
-                        <Grid size={{ xs: 12, sm: 6 }}>
-                            <TextField
-                                name="city"
-                                label="City"
-                                fullWidth
-                                value={profile.city || ''}
-                                onChange={(e) => setProfile(prev => prev ? { ...prev, city: e.target.value } : null)}
-                            />
-                        </Grid>
-                        <Grid size={{ xs: 12, sm: 6 }}>
-                            <TextField
-                                name="state"
-                                label="State"
-                                fullWidth
-                                value={profile.state || ''}
-                                onChange={(e) => setProfile(prev => prev ? { ...prev, state: e.target.value } : null)}
-                            />
-                        </Grid>
+                            <Box sx={{ textAlign: { xs: 'center', sm: 'left' }, flexGrow: 1 }}>
+                                <Typography variant="h4" fontWeight={800} sx={{ color: '#1e293b' }}>
+                                    {profile?.fullName || 'Anonymous User'}
+                                </Typography>
+                                <Typography variant="body1" sx={{ color: '#64748b', mb: 1 }}>
+                                    @{profile?.user?.mobileNumber || 'hidden'}
+                                </Typography>
+                                <Stack direction="row" spacing={1} justifyContent={{ xs: 'center', sm: 'flex-start' }}>
+                                    <Chip label="MEMBER" size="small" sx={{ bgcolor: '#eff6ff', color: '#2563eb', fontWeight: 700 }} />
+                                    {profile?.isVerified && <Chip icon={<VerifiedIcon sx={{ color: 'white !important' }} />} label="VERIFIED" size="small" sx={{ bgcolor: '#059669', color: 'white', fontWeight: 700 }} />}
+                                </Stack>
+                            </Box>
+
+                            <Button
+                                variant={editing ? "contained" : "outlined"}
+                                startIcon={editing ? <SaveIcon /> : <EditIcon />}
+                                onClick={() => editing ? handleSave() : setEditing(true)}
+                                sx={{
+                                    borderRadius: 2,
+                                    borderColor: '#e2e8f0',
+                                    color: editing ? 'white' : '#64748b',
+                                    bgcolor: editing ? '#2563eb' : 'transparent',
+                                    '&:hover': { borderColor: '#cbd5e1', bgcolor: editing ? '#1d4ed8' : '#f8fafc' }
+                                }}
+                            >
+                                {editing ? 'SAVE' : 'EDIT'}
+                            </Button>
+                        </Box>
+                    </Paper>
+
+                    {/* Details Grid */}
+                    <Typography variant="h6" fontWeight={800} sx={{ mb: 3, color: '#334155' }}>
+                        Personal Information
+                    </Typography>
+                    <Grid container spacing={3}>
+                        {['fullName', 'email', 'occupation', 'company', 'address', 'city'].map((field) => (
+                            <Grid item key={field} xs={12} sm={6}>
+                                <TextField
+                                    fullWidth
+                                    label={field.charAt(0).toUpperCase() + field.slice(1)}
+                                    value={formData[field] || ''}
+                                    onChange={(e) => setFormData({ ...formData, [field]: e.target.value })}
+                                    disabled={!editing}
+                                    variant="outlined"
+                                    InputProps={{
+                                        sx: {
+                                            bgcolor: 'white',
+                                            borderRadius: 2,
+                                            '& fieldset': { borderColor: '#e2e8f0' }
+                                        }
+                                    }}
+                                />
+                            </Grid>
+                        ))}
                     </Grid>
-                    <Button type="submit" variant="contained" sx={{ mt: 3 }}>
-                        Save Changes
-                    </Button>
-                </Box>
-            </Box>
-        </Container>
+                </motion.div>
+            </Container>
+        </Box>
     );
 };
 
