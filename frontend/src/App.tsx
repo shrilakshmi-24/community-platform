@@ -42,8 +42,8 @@ import AdminContentCreation from './pages/admin/AdminContentCreation';
 
 // Profile section pages
 import AboutMe from './pages/profile/AboutMe';
-// import Family from './pages/profile/Family';
-// import Business from './pages/profile/Business';
+import Family from './pages/profile/Family';
+import Business from './pages/profile/Business';
 
 // Help Desk Pages
 import HelpRequestForm from './pages/help/HelpRequestForm';
@@ -134,12 +134,14 @@ const App = () => {
               <Route path="help/my-requests" element={<HelpRequestList />} />
               <Route path="help/emergency" element={<EmergencyRequests />} />
 
-              {/* Profile section routes */}
               {/* Newsletter Routes */}
               <Route path="newsletters" element={<NewsletterPage />} />
               <Route path="newsletters/:id" element={<NewsletterPage />} />
 
+              {/* Profile section routes */}
               <Route path="profile/about-me" element={<AboutMe />} />
+              <Route path="profile/family" element={<Family />} />
+              <Route path="profile/business" element={<Business />} />
             </Route>
 
             <Route path="*" element={<Navigate to="/" replace />} />

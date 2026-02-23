@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AppBar, Toolbar, Typography, Button, Container, Box, Menu, MenuItem, IconButton, Divider, Popover, GridLegacy as Grid } from '@mui/material';
+import { AppBar, Toolbar, Typography, Button, Container, Box, Menu, MenuItem, IconButton, Divider, Popover, GridLegacy as Grid, Drawer, List, ListItem, ListItemButton, ListItemText, ListItemIcon } from '@mui/material';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import PersonIcon from '@mui/icons-material/Person';
 import FamilyRestroomIcon from '@mui/icons-material/FamilyRestroom';
@@ -7,6 +7,13 @@ import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import LogoutIcon from '@mui/icons-material/Logout';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import NotificationsIcon from '@mui/icons-material/Notifications';
+import MenuIcon from '@mui/icons-material/Menu';
+import EventIcon from '@mui/icons-material/Event';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import DomainIcon from '@mui/icons-material/Domain';
+import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
+
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Outlet } from 'react-router-dom';
 import { Logo } from './Logo';
@@ -14,6 +21,12 @@ import { Logo } from './Logo';
 const Layout = () => {
     const { logout, isAuthenticated, user } = useAuth();
     const navigate = useNavigate();
+
+    // Responsive Mobile Drawer State
+    const [mobileOpen, setMobileOpen] = useState(false);
+    const handleDrawerToggle = () => {
+        setMobileOpen(!mobileOpen);
+    };
 
     // Profile Menu State
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -54,14 +67,27 @@ const Layout = () => {
         <>
             <AppBar position="static" color="transparent" sx={{ bgcolor: 'white', color: '#1e293b' }}>
                 <Toolbar>
-                    <Box onClick={() => navigate('/home')} sx={{ mr: 4, cursor: 'pointer' }}>
+                    <Box onClick={() => navigate('/home')} sx={{ mr: { xs: 2, md: 4 }, cursor: 'pointer', flexGrow: { xs: 1, md: 0 } }}>
                         <Logo mode="light" />
                     </Box>
+
+                    {/* Mobile Menu Icon */}
+                    {isAuthenticated && (
+                        <IconButton
+                            color="inherit"
+                            aria-label="open drawer"
+                            edge="end"
+                            onClick={handleDrawerToggle}
+                            sx={{ display: { md: 'none' } }}
+                        >
+                            <MenuIcon />
+                        </IconButton>
+                    )}
 
                     {isAuthenticated ? (
                         <>
                             {/* Primary Navigation (Left) */}
-                            <Box sx={{ display: 'flex', gap: 1, flexGrow: 1, alignItems: 'center' }}>
+                            <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 1, flexGrow: 1, alignItems: 'center' }}>
                                 <Button color="inherit" onClick={() => navigate('/home')}>Home</Button>
 
                                 <Button
@@ -77,7 +103,7 @@ const Layout = () => {
                             </Box>
 
                             {/* Utilities (Right) */}
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 1 }}>
                                 <Button
                                     variant="contained"
                                     color="error"
@@ -214,6 +240,76 @@ const Layout = () => {
             <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
                 <Outlet />
             </Container>
+
+            {/* Mobile Drawer */}
+            <Drawer
+                variant="temporary"
+                anchor="right"
+                open={mobileOpen}
+                onClose={handleDrawerToggle}
+                ModalProps={{ keepMounted: true }}
+                sx={{
+                    display: { xs: 'block', md: 'none' },
+                    '& .MuiDrawer-paper': { boxSizing: 'border-box', width: 280, p: 2 },
+                }}
+            >
+                <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center', mb: 2 }}>
+                    <Logo mode="mixed" />
+                </Box>
+                <Divider sx={{ mb: 2 }} />
+                <List sx={{ gap: 1, display: 'flex', flexDirection: 'column' }}>
+                    <ListItem disablePadding>
+                        <ListItemButton onClick={() => handleNavigate('/home')} sx={{ borderRadius: 2 }}>
+                            <ListItemText primary="Home" primaryTypographyProps={{ fontWeight: 600 }} />
+                        </ListItemButton>
+                    </ListItem>
+                    <ListItem disablePadding>
+                        <ListItemButton onClick={() => handleNavigate('/events')} sx={{ borderRadius: 2 }}>
+                            <ListItemIcon sx={{ minWidth: 40 }}><EventIcon color="primary" /></ListItemIcon>
+                            <ListItemText primary="Events" primaryTypographyProps={{ fontWeight: 600 }} />
+                        </ListItemButton>
+                    </ListItem>
+                    <ListItem disablePadding>
+                        <ListItemButton onClick={() => handleNavigate('/achievements')} sx={{ borderRadius: 2 }}>
+                            <ListItemIcon sx={{ minWidth: 40 }}><EmojiEventsIcon color="primary" /></ListItemIcon>
+                            <ListItemText primary="Achievements" primaryTypographyProps={{ fontWeight: 600 }} />
+                        </ListItemButton>
+                    </ListItem>
+                    <ListItem disablePadding>
+                        <ListItemButton onClick={() => handleNavigate('/donations')} sx={{ borderRadius: 2 }}>
+                            <ListItemIcon sx={{ minWidth: 40 }}><AccountBalanceIcon color="primary" /></ListItemIcon>
+                            <ListItemText primary="Donate" primaryTypographyProps={{ fontWeight: 600 }} />
+                        </ListItemButton>
+                    </ListItem>
+                    <ListItem disablePadding>
+                        <ListItemButton onClick={() => handleNavigate('/business')} sx={{ borderRadius: 2 }}>
+                            <ListItemIcon sx={{ minWidth: 40 }}><DomainIcon color="primary" /></ListItemIcon>
+                            <ListItemText primary="Business Directory" primaryTypographyProps={{ fontWeight: 600 }} />
+                        </ListItemButton>
+                    </ListItem>
+                    <ListItem disablePadding>
+                        <ListItemButton onClick={() => handleNavigate('/help/emergency')} sx={{ borderRadius: 2, bgcolor: '#fff0eb' }}>
+                            <ListItemIcon sx={{ minWidth: 40 }}><LocalHospitalIcon color="error" /></ListItemIcon>
+                            <ListItemText primary="Emergency Help" primaryTypographyProps={{ color: 'error', fontWeight: 800 }} />
+                        </ListItemButton>
+                    </ListItem>
+                </List>
+                <Divider sx={{ my: 2 }} />
+                <List sx={{ gap: 1, display: 'flex', flexDirection: 'column' }}>
+                    <ListItem disablePadding>
+                        <ListItemButton onClick={() => handleNavigate('/profile/about-me')} sx={{ borderRadius: 2 }}>
+                            <ListItemIcon sx={{ minWidth: 40 }}><PersonIcon /></ListItemIcon>
+                            <ListItemText primary="My Profile" primaryTypographyProps={{ fontWeight: 600 }} />
+                        </ListItemButton>
+                    </ListItem>
+                    <ListItem disablePadding>
+                        <ListItemButton onClick={handleLogout} sx={{ borderRadius: 2 }}>
+                            <ListItemIcon sx={{ minWidth: 40 }}><LogoutIcon /></ListItemIcon>
+                            <ListItemText primary="Logout" primaryTypographyProps={{ fontWeight: 600 }} />
+                        </ListItemButton>
+                    </ListItem>
+                </List>
+            </Drawer>
         </>
     );
 };
