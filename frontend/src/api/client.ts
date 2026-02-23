@@ -1,8 +1,14 @@
 
 import axios from 'axios';
 
+// In production on Vercel, we always want to use the relative '/api' 
+// so it matches the exact domain the user is on (avoiding CORS issues).
+// In development, we use VITE_API_URL (e.g., http://localhost:5000/api).
+const isProd = import.meta.env.PROD;
+const baseURL = isProd ? '/api' : (import.meta.env.VITE_API_URL || '/api');
+
 const client = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || '/api', // Use env var for local or /api for production
+    baseURL,
     headers: {
         'Content-Type': 'application/json',
     },

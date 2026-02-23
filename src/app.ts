@@ -34,10 +34,10 @@ const app = express();
 // Security middleware
 app.use(helmet());
 app.use(cors({
-    origin: '*', // Allow all origins for development to fix connectivity issues
+    origin: (origin, callback) => callback(null, origin || '*'),
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-    credentials: true // Allow cookies if needed
+    credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
