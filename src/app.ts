@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import dotenv from 'dotenv';
+
 import './config/env'; // Validate environment variables
 import logger from './config/logger';
 import { apiLimiter } from './middleware/rateLimiter';
@@ -24,7 +24,10 @@ import collaborationRoutes from './routes/collaborationRoutes';
 import donationRoutes from './routes/donationRoutes';
 import newsletterRoutes from './routes/newsletterRoutes';
 
-dotenv.config();
+if (process.env.NODE_ENV !== 'production') {
+    require('dotenv').config();
+}
+
 
 const app = express();
 

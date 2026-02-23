@@ -1,7 +1,7 @@
-import dotenv from 'dotenv';
 import { z } from 'zod';
-
-dotenv.config();
+if (process.env.NODE_ENV !== 'production') {
+    require('dotenv').config();
+}
 
 const envSchema = z.object({
     DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
