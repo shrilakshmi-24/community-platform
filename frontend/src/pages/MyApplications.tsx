@@ -58,7 +58,7 @@ const MyApplications = () => {
 
     return (
         <Container maxWidth="md" sx={{ mt: 4, mb: 8 }}>
-            <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 'bold', color: '#8B2635' }}>
+            <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 'bold', color: '#FA8231' }}>
                 My Scholarship Applications
             </Typography>
 

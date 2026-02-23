@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { PrismaClient, ListingStatus } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from '../config/db';
+// const prisma = new PrismaClient(); // Removed local instance
 
 export const getStats = async (req: Request, res: Response): Promise<void> => {
     try {

@@ -21,6 +21,8 @@ import notificationRoutes from './routes/notificationRoutes';
 import scholarshipRoutes from './routes/scholarshipRoutes';
 import announcementRoutes from './routes/announcementRoutes';
 import collaborationRoutes from './routes/collaborationRoutes';
+import donationRoutes from './routes/donationRoutes';
+import newsletterRoutes from './routes/newsletterRoutes';
 
 dotenv.config();
 
@@ -29,9 +31,10 @@ const app = express();
 // Security middleware
 app.use(helmet());
 app.use(cors({
-    origin: process.env.FRONTEND_URL || '*', // Allow configured frontend or all (for dev)
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    origin: '*', // Allow all origins for development to fix connectivity issues
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    credentials: true // Allow cookies if needed
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
@@ -60,6 +63,8 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/scholarships', scholarshipRoutes);
 app.use('/api/announcements', announcementRoutes);
 app.use('/api/collaboration', collaborationRoutes);
+app.use('/api/donations', donationRoutes);
+app.use('/api/newsletter', newsletterRoutes);
 
 // Health check route
 app.get('/', (req, res) => {

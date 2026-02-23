@@ -9,9 +9,9 @@ import PublicIcon from '@mui/icons-material/Public';
 const AboutUs = () => {
     // Maroon color palette matching home page
     const colors = {
-        primary: '#8B2635',
+        primary: '#FA8231',
         secondary: '#A0522D',
-        accent: '#CD853F',
+        accent: '#E62A4D',
         light: '#FFF8F0',
         lightBg: '#FDF5E6'
     };

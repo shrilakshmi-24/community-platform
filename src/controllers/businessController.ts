@@ -16,8 +16,15 @@ export const createListing = async (req: AuthRequest, res: Response): Promise<vo
             status, publishDate, expiryDate, visibility
         } = req.body;
 
-        const uploadedLogo = (req as any).file ? (req as any).file.path : null;
+        // Handle multiple file uploads
+        const files = (req as any).files;
+        const uploadedLogo = files?.['logo']?.[0]?.path;
+        const uploadedPaymentProof = files?.['paymentProof']?.[0]?.path;
+
         const finalLogoUrl = uploadedLogo || logoUrl;
+        // If payment proof is uploaded, use it, otherwise check body (though body is unlikely for file upload flow)
+        // Actually, we expect payment proof via file upload for the new flow.
+        const finalPaymentProofUrl = uploadedPaymentProof || req.body.paymentProofUrl;
 
         if (!businessName || !category || !description || !address) {
             res.status(400).json({ message: 'Missing required fields' });
@@ -38,14 +45,21 @@ export const createListing = async (req: AuthRequest, res: Response): Promise<vo
                 website,
                 workingHours,
                 logoUrl: finalLogoUrl,
-                status: status || (req.user.role === 'ADMIN' ? 'APPROVED' : 'PENDING'),
+                status: 'PENDING', // Always PENDING until payment verified
                 publishDate: publishDate ? new Date(publishDate) : new Date(),
                 expiryDate: expiryDate ? new Date(expiryDate) : null,
-                visibility: visibility || 'ALL_MEMBERS'
+                visibility: visibility || 'ALL_MEMBERS',
+
+                // Payment Details
+                paymentStatus: 'PENDING',
+                transactionId: req.body.transactionId,
+                paymentProofUrl: req.body.paymentProofUrl
             }
         });
 
-        res.status(201).json({ message: 'Business listing created successfully', listing });
+        // TODO: Trigger Admin Notification here
+
+        res.status(201).json({ message: 'Business listing submitted for approval', listing });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Server error', error });

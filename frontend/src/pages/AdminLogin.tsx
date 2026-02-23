@@ -6,7 +6,7 @@ import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 const AdminLogin = () => {
     // Maroon color palette matching home page
     const colors = {
-        primary: '#8B2635',
+        primary: '#FA8231',
         secondary: '#A0522D'
     };
 

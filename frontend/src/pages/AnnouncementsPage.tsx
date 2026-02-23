@@ -2,21 +2,29 @@ import { useState, useEffect } from 'react';
 import { Container, Typography, Box, Card, Skeleton, GridLegacy as Grid } from '@mui/material';
 import CampaignIcon from '@mui/icons-material/Campaign';
 import { motion } from 'framer-motion';
+import client from '../api/client';
 
 const AnnouncementsPage = () => {
     const [announcements, setAnnouncements] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Mock fetch or real endpoint
-        setTimeout(() => {
-            setAnnouncements([
-                { id: 1, title: 'Annual Arya Vaishya Meetup 2026', content: 'Join us for the biggest community gathering of the year. Music, food, and networking.', date: '2026-04-15' },
-                { id: 2, title: 'Exam Toppers Felicitation', content: 'We are inviting applications for student awards. Submit your mark sheets by May 1st.', date: '2026-04-10' },
-                { id: 3, title: 'New Business Support Scheme', content: 'Interest-free loans available for young entrepreneurs. Check the business section.', date: '2026-04-01' }
-            ]);
-            setLoading(false);
-        }, 1000);
+        const fetchAnnouncements = async () => {
+            try {
+                const { data } = await client.get('/announcements');
+                setAnnouncements(data.announcements.map((a: any) => ({
+                    id: a.id,
+                    title: a.title,
+                    content: a.description,
+                    date: a.createdAt
+                })));
+            } catch (error) {
+                console.error('Failed to fetch announcements', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchAnnouncements();
     }, []);
 
     return (

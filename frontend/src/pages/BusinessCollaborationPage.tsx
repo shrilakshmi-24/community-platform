@@ -66,7 +66,7 @@ const BusinessCollaborationPage = () => {
         <Container maxWidth="lg" sx={{ mt: 4, mb: 8 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
                 <Box>
-                    <Typography variant="h4" fontWeight="bold" color="#8B2635">
+                    <Typography variant="h4" fontWeight="bold" color="#FA8231">
                         Business Collaboration & Loans
                     </Typography>
                     <Typography variant="body1" color="text.secondary">
@@ -77,7 +77,7 @@ const BusinessCollaborationPage = () => {
                     <Button
                         variant="contained"
                         startIcon={<AddCircleIcon />}
-                        sx={{ bgcolor: '#8B2635' }}
+                        sx={{ bgcolor: '#FA8231' }}
                         onClick={() => setOpen(true)}
                     >
                         Apply / Post Request
@@ -179,7 +179,7 @@ const BusinessCollaborationPage = () => {
                     <Button
                         onClick={handleCreate}
                         variant="contained"
-                        sx={{ bgcolor: '#8B2635' }}
+                        sx={{ bgcolor: '#FA8231' }}
                         disabled={!formData.title || !formData.description}
                     >
                         Submit

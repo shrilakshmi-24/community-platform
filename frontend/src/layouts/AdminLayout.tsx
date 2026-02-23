@@ -14,6 +14,8 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import LiveHelpIcon from '@mui/icons-material/LiveHelp';
 import { useAuth } from '../context/AuthContext';
 
+import { Logo } from '../components/Logo';
+
 const drawerWidth = 240;
 
 const AdminLayout = () => {
@@ -40,10 +42,8 @@ const AdminLayout = () => {
 
     const drawer = (
         <div>
-            <Toolbar>
-                <Typography variant="h6" noWrap component="div">
-                    Admin Panel
-                </Typography>
+            <Toolbar sx={{ justifyContent: 'center' }}>
+                <Logo mode="mixed" />
             </Toolbar>
             <Divider />
             <List>

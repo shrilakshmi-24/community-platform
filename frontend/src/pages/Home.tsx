@@ -51,9 +51,9 @@ const Home = () => {
 
     // Elegant maroon/burgundy color palette
     const colors = {
-        primary: '#8B2635',      // Deep maroon
+        primary: '#FA8231',      // Deep maroon
         secondary: '#A0522D',    // Sienna brown
-        accent: '#CD853F',       // Peru gold
+        accent: '#E62A4D',       // Peru gold
         light: '#FFF8F0',        // Warm white
         lightBg: '#FDF5E6'       // Old lace
     };

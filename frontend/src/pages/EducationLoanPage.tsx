@@ -5,8 +5,8 @@ const EducationLoanPage = () => {
     return (
         <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
             <Paper sx={{ p: 4, textAlign: 'center' }}>
-                <SchoolIcon sx={{ fontSize: 60, color: '#8B2635', mb: 2 }} />
-                <Typography variant="h4" gutterBottom color="#8B2635" fontWeight="bold">
+                <SchoolIcon sx={{ fontSize: 60, color: '#FA8231', mb: 2 }} />
+                <Typography variant="h4" gutterBottom color="#FA8231" fontWeight="bold">
                     Education Loan Assistance
                 </Typography>
                 <Typography variant="body1" paragraph>
@@ -21,7 +21,7 @@ const EducationLoanPage = () => {
                         We are currently finalizing partnerships with banks. Please check back later for application details.
                     </Typography>
                 </Box>
-                <Button variant="contained" sx={{ mt: 3, bgcolor: '#8B2635' }} onClick={() => window.history.back()}>
+                <Button variant="contained" sx={{ mt: 3, bgcolor: '#FA8231' }} onClick={() => window.history.back()}>
                     Go Back
                 </Button>
             </Paper>

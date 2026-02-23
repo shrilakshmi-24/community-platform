@@ -11,6 +11,7 @@ import Layout from './components/Layout';
 import PublicLayout from './components/PublicLayout';
 import HybridLayout from './components/HybridLayout';
 import BusinessList from './pages/BusinessList';
+import CreateBusiness from './pages/CreateBusiness';
 import CareerList from './pages/CareerList';
 import SupportRequest from './pages/SupportRequest';
 import ProfilePage from './pages/ProfilePage';
@@ -24,6 +25,9 @@ import ScholarshipsPage from './pages/ScholarshipsPage';
 import AnnouncementsPage from './pages/AnnouncementsPage';
 import EducationLoanPage from './pages/EducationLoanPage';
 import BusinessCollaborationPage from './pages/BusinessCollaborationPage';
+import EventDetailsPage from './pages/EventDetailsPage';
+import NewsletterPage from './pages/NewsletterPage';
+import NewsletterEditor from './pages/admin/NewsletterEditor';
 
 // Admin Pages
 import AdminLayout from './layouts/AdminLayout';
@@ -38,8 +42,8 @@ import AdminContentCreation from './pages/admin/AdminContentCreation';
 
 // Profile section pages
 import AboutMe from './pages/profile/AboutMe';
-import Family from './pages/profile/Family';
-import Business from './pages/profile/Business';
+// import Family from './pages/profile/Family';
+// import Business from './pages/profile/Business';
 
 // Help Desk Pages
 import HelpRequestForm from './pages/help/HelpRequestForm';
@@ -101,6 +105,7 @@ const App = () => {
               <Route path="scholarships" element={<ScholarshipManager />} />
               <Route path="reports" element={<AdminReports />} />
               <Route path="create-content" element={<AdminContentCreation />} />
+              <Route path="newsletters" element={<NewsletterEditor />} />
               <Route path="help-desk" element={<AdminHelpDesk />} />
             </Route>
 
@@ -108,12 +113,14 @@ const App = () => {
             <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
               <Route path="home" element={<Home />} />
               <Route path="business" element={<BusinessList />} />
+              <Route path="business/create" element={<CreateBusiness />} />
               <Route path="career" element={<CareerList />} />
               <Route path="support" element={<SupportRequest />} />
               <Route path="profile" element={<ProfilePage />} />
               <Route path="about" element={<AboutUs />} />
 
               <Route path="events" element={<EventsPage />} />
+              <Route path="events/:id" element={<EventDetailsPage />} />
               <Route path="achievements" element={<AchievementsPage />} />
               <Route path="announcements" element={<AnnouncementsPage />} />
               <Route path="notifications" element={<NotificationsPage />} />
@@ -128,9 +135,11 @@ const App = () => {
               <Route path="help/emergency" element={<EmergencyRequests />} />
 
               {/* Profile section routes */}
+              {/* Newsletter Routes */}
+              <Route path="newsletters" element={<NewsletterPage />} />
+              <Route path="newsletters/:id" element={<NewsletterPage />} />
+
               <Route path="profile/about-me" element={<AboutMe />} />
-              <Route path="profile/family" element={<Family />} />
-              <Route path="profile/business" element={<Business />} />
             </Route>
 
             <Route path="*" element={<Navigate to="/" replace />} />

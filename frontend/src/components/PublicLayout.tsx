@@ -5,14 +5,15 @@ import TempleHinduIcon from '@mui/icons-material/TempleHindu';
 import EventIcon from '@mui/icons-material/Event';
 import InfoIcon from '@mui/icons-material/Info';
 import LoginIcon from '@mui/icons-material/Login';
+import { Logo } from './Logo';
 
 const PublicLayout = () => {
     const navigate = useNavigate();
 
     const colors = {
-        primary: '#8B2635',
+        primary: '#FA8231',
         secondary: '#A0522D',
-        accent: '#CD853F',
+        accent: '#E62A4D',
     };
 
     return (
@@ -27,15 +28,7 @@ const PublicLayout = () => {
                 <Container maxWidth="lg">
                     <Toolbar sx={{ justifyContent: 'space-between', py: 1 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => navigate('/')}>
-                            <TempleHinduIcon sx={{ fontSize: 32, mr: 1.5, color: colors.primary }} />
-                            <Typography variant="h6" component="div" fontWeight={800} sx={{
-                                background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
-                                WebkitBackgroundClip: 'text',
-                                WebkitTextFillColor: 'transparent',
-                                letterSpacing: '-0.02em'
-                            }}>
-                                Arya Vyshya Community
-                            </Typography>
+                            <Logo mode="light" />
                         </Box>
                         <Box sx={{ display: 'flex', gap: 2 }}>
                             <Button
@@ -52,6 +45,13 @@ const PublicLayout = () => {
                                 sx={{ fontWeight: 600, borderRadius: 50 }}
                             >
                                 Events
+                            </Button>
+                            <Button
+                                color="inherit"
+                                onClick={() => navigate('/newsletters')}
+                                sx={{ fontWeight: 600, borderRadius: 50 }}
+                            >
+                                Newsletters
                             </Button>
                             <Button
                                 color="inherit"

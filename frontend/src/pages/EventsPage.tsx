@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import client from '../api/client';
 import { Container, Typography, Box, Card, CardContent, Button, CardMedia, Skeleton, GridLegacy as Grid } from '@mui/material';
 import { useAuth } from '../context/AuthContext';
@@ -22,6 +23,7 @@ export default function EventsPage() {
     const [events, setEvents] = useState<Event[]>([]);
     const [loading, setLoading] = useState(true);
     const { user } = useAuth();
+    const navigate = useNavigate(); // Add hook
 
     const fetchEvents = useCallback(async () => {
         setLoading(true);
@@ -116,7 +118,7 @@ export default function EventsPage() {
                                         <Typography variant="body2" sx={{ color: '#475569', mb: 3 }}>
                                             {event.description}
                                         </Typography>
-                                        <Button variant="outlined" fullWidth sx={{ mt: 'auto', borderColor: '#e2e8f0', color: '#2563eb' }}>
+                                        <Button variant="outlined" fullWidth sx={{ mt: 'auto', borderColor: '#e2e8f0', color: '#2563eb' }} onClick={() => navigate(`/events/${event.id}`)}>
                                             View Details
                                         </Button>
                                     </CardContent>

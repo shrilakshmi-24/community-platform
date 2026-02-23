@@ -233,7 +233,7 @@ const AdminContentCreation = () => {
     return (
         <Container maxWidth="md" sx={{ mt: 4, mb: 8 }}>
             <Paper sx={{ p: 4 }}>
-                <Typography variant="h4" gutterBottom color="#8B2635" fontWeight="bold">
+                <Typography variant="h4" gutterBottom color="#FA8231" fontWeight="bold">
                     Unified Content Creation
                 </Typography>
                 <Typography variant="body1" color="text.secondary" paragraph>

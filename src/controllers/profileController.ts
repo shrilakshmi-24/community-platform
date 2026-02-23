@@ -40,28 +40,43 @@ export const getProfile = async (req: AuthRequest, res: Response): Promise<void>
 export const updateProfile = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
         const userId = req.user.userId;
-        const { fullName, email, address, city, state, bio, avatarUrl } = req.body;
+        const { fullName, email, address, city, state, bio, avatarUrl, occupation, company } = req.body;
+
+        const user = await prisma.user.findUnique({
+            where: { id: userId }
+        });
+
+        if (!user) {
+            res.status(401).json({ message: 'User account not found. Please log in again.' });
+            return;
+        }
+
+        const safeEmail = email && email.trim() !== '' ? email.trim() : null;
 
         const profile = await prisma.profile.upsert({
             where: { userId },
             update: {
                 fullName,
-                email,
+                email: safeEmail,
                 address,
                 city,
                 state,
                 bio,
-                avatarUrl
+                avatarUrl,
+                occupation,
+                company
             },
             create: {
                 userId,
                 fullName,
-                email,
+                email: safeEmail,
                 address,
                 city,
                 state,
                 bio,
-                avatarUrl
+                avatarUrl,
+                occupation,
+                company
             }
         });
 
@@ -109,11 +124,13 @@ export const updateAboutMe = async (req: AuthRequest, res: Response): Promise<vo
         const userId = req.user.userId;
         const { fullName, email, address, city, state, bio, avatarUrl, interests, skills, profession, bloodGroup, dateOfBirth, maritalStatus } = req.body;
 
+        const safeEmail = email && email.trim() !== '' ? email.trim() : null;
+
         const profile = await prisma.profile.upsert({
             where: { userId },
             update: {
                 fullName,
-                email,
+                email: safeEmail,
                 address,
                 city,
                 state,
@@ -129,7 +146,7 @@ export const updateAboutMe = async (req: AuthRequest, res: Response): Promise<vo
             create: {
                 userId,
                 fullName,
-                email,
+                email: safeEmail,
                 address,
                 city,
                 state,

@@ -46,9 +46,28 @@ export const recordDonation = async (req: Request, res: Response): Promise<void>
             }
         });
 
+        // ... existing code ...
         res.status(201).json({ message: 'Donation recorded successfully', transaction });
     } catch (error) {
         console.error('Error recording donation:', error);
         res.status(500).json({ message: 'Error recording donation', error: error instanceof Error ? error.message : String(error) });
+    }
+};
+
+export const getDonations = async (req: Request, res: Response) => {
+    try {
+        const donations = await prisma.donation.findMany({
+            where: { isActive: true },
+            orderBy: { createdAt: 'desc' },
+            include: {
+                _count: {
+                    select: { transactions: true }
+                }
+            }
+        });
+        res.json({ donations });
+    } catch (error) {
+        console.error('Error fetching donations:', error);
+        res.status(500).json({ message: 'Error fetching donations', error: error instanceof Error ? error.message : String(error) });
     }
 };

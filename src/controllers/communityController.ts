@@ -227,6 +227,33 @@ export const getAllEvents = async (req: Request, res: Response): Promise<void> =
     }
 };
 
+export const getEventById = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { id } = req.params;
+        const event = await (prisma as any).event.findUnique({
+            where: { id: String(id) },
+            include: {
+                organizer: {
+                    select: {
+                        mobileNumber: true,
+                        profile: { select: { fullName: true, email: true } }
+                    }
+                }
+            }
+        });
+
+        if (!event) {
+            res.status(404).json({ message: 'Event not found' });
+            return;
+        }
+
+        res.status(200).json({ event });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error', error });
+    }
+};
+
 // EVENT REGISTRATION
 export const registerForEvent = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
@@ -244,14 +271,14 @@ export const registerForEvent = async (req: AuthRequest, res: Response): Promise
             return;
         }
 
-        const existingRegistration = await prisma.eventRegistration.findUnique({
+        const existingRegistration = await (prisma as any).eventRegistration.findUnique({
             where: { eventId_userId: { eventId, userId } }
         });
 
         if (existingRegistration) {
             if (existingRegistration.status === 'CANCELLED') {
                 // Re-register
-                await prisma.eventRegistration.update({
+                await (prisma as any).eventRegistration.update({
                     where: { id: existingRegistration.id },
                     data: { status: 'REGISTERED' }
                 });
@@ -262,7 +289,7 @@ export const registerForEvent = async (req: AuthRequest, res: Response): Promise
             return;
         }
 
-        await prisma.eventRegistration.create({
+        await (prisma as any).eventRegistration.create({
             data: { eventId, userId }
         });
 
@@ -278,7 +305,7 @@ export const cancelRegistration = async (req: AuthRequest, res: Response): Promi
         const userId = req.user.userId;
         const { eventId } = req.body;
 
-        await prisma.eventRegistration.update({
+        await (prisma as any).eventRegistration.update({
             where: { eventId_userId: { eventId, userId } },
             data: { status: 'CANCELLED' }
         });
@@ -293,7 +320,7 @@ export const cancelRegistration = async (req: AuthRequest, res: Response): Promi
 export const getMyEventRegistrations = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
         const userId = req.user.userId;
-        const registrations = await prisma.eventRegistration.findMany({
+        const registrations = await (prisma as any).eventRegistration.findMany({
             where: { userId, status: 'REGISTERED' },
             select: { eventId: true }
         });

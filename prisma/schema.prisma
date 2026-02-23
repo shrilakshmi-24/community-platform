@@ -169,11 +169,17 @@ model BusinessListing {
   expiryDate  DateTime?      // New Common Field
   visibility  Visibility    @default(ALL_MEMBERS) // New Common Field
   
+  // Payment & Verification
+  paymentStatus   String    @default("PENDING") // PENDING, VERIFIED, FAILED
+  transactionId   String?
+  paymentProofUrl String?
+  
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
 
   @@index([category])
   @@index([status])
+  @@index([paymentStatus])
 }
 
 model CareerListing {
@@ -329,6 +335,10 @@ model Event {
   publishDate DateTime?   // New Common Field
   expiryDate  DateTime?   // New Common Field
   visibility  Visibility  @default(ALL_MEMBERS) // New Common Field
+
+  // Volunteer
+  volunteersNeeded Boolean @default(false)
+  volunteerRoles   String[] // Array of roles e.g. ["Usher", "Catering", "Logistics"]
 
   mediaUrl  String?
   mediaType String? // IMAGE, VIDEO
@@ -541,4 +551,25 @@ model AuditLog {
   details  String?
 
   createdAt DateTime @default(now())
+}
+
+model Newsletter {
+  id            String   @id @default(uuid())
+  title         String
+  coverImageUrl String?
+  content       String   @db.Text
+  pdfUrl        String?
+  
+  status        ListingStatus @default(DRAFT)
+  publishedAt   DateTime?
+  
+  emailSubject  String?
+  emailSummary  String?
+  
+  linkedEventIds       String[] @default([])
+  linkedAchievementIds String[] @default([])
+  linkedBusinessIds    String[] @default([])
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }

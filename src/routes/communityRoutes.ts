@@ -1,6 +1,6 @@
 
 import { Router } from 'express';
-import { createGroup, getAllGroups, joinGroup, createEvent, getAllEvents } from '../controllers/communityController';
+import { createGroup, getAllGroups, joinGroup, createEvent, getAllEvents, getEventById } from '../controllers/communityController';
 import { getAllAchievements } from '../controllers/achievementController';
 import { authenticate } from '../middleware/auth';
 
@@ -16,6 +16,7 @@ import { upload } from '../utils/cloudinary';
 // Events
 router.post('/events/create', authenticate, upload.array('images', 5), createEvent);
 router.get('/events/all', getAllEvents);
+router.get('/events/:id', getEventById);
 
 import { registerForEvent, cancelRegistration, getMyEventRegistrations } from '../controllers/communityController';
 router.post('/events/register', authenticate, registerForEvent);

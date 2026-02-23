@@ -350,6 +350,47 @@ async function main() {
         }
     }
 
+    // --- Donations ---
+    console.log('Creating Donations...');
+    const donations = [
+        {
+            title: "Temple Renovation Fund",
+            description: "Support the renovation of the community temple. Your contribution helps preserve our heritage.",
+            targetAmount: 500000,
+            collectedAmount: 125000,
+            bankDetails: "SBI, Acct: 1234567890, IFSC: SBIN0001234",
+            upiId: "temple@upi",
+            qrCodeUrl: "https://mysite.com/qr1.png",
+            isActive: true
+        },
+        {
+            title: "Education Support Fund",
+            description: "Help underprivileged students with school fees and books. Every rupee counts.",
+            targetAmount: 200000,
+            collectedAmount: 45000,
+            bankDetails: "HDFC, Acct: 9876543210, IFSC: HDFC0001234",
+            upiId: "edu@upi",
+            qrCodeUrl: "https://mysite.com/qr2.png",
+            isActive: true
+        },
+        {
+            title: "Annadana Seva",
+            description: "Contribute to the daily Annadana at the community center.",
+            targetAmount: 100000,
+            collectedAmount: 85000,
+            bankDetails: "ICICI, Acct: 1122334455, IFSC: ICIC0001234",
+            upiId: "annadana@upi",
+            qrCodeUrl: "https://mysite.com/qr3.png",
+            isActive: true
+        }
+    ];
+
+    for (const d of donations) {
+        await prisma.donation.create({
+            data: d
+        });
+    }
+
     // --- Announcements ---
     console.log('Creating Announcements...');
     const announcements = [

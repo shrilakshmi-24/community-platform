@@ -22,4 +22,19 @@ client.interceptors.request.use(
     }
 );
 
+// Add a response interceptor to handle 401 errors
+client.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response && error.response.status === 401) {
+            // Token is invalid or expired
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            // Redirect to login page
+            window.location.href = '/login';
+        }
+        return Promise.reject(error);
+    }
+);
+
 export default client;

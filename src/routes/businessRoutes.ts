@@ -11,7 +11,7 @@ router.get('/all', getAllListings);
 import { upload } from '../utils/cloudinary';
 
 // Protected
-router.post('/create', authenticate, upload.single('logo'), createListing);
+router.post('/create', authenticate, upload.fields([{ name: 'logo', maxCount: 1 }, { name: 'paymentProof', maxCount: 1 }]), createListing);
 router.get('/my-listings', authenticate, getMyListings);
 router.put('/:id', authenticate, updateListing);
 router.delete('/:id', authenticate, deleteListing);
