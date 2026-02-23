@@ -8,6 +8,7 @@ import {
 } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import EditIcon from '@mui/icons-material/Edit';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import client from '../../api/client';
 
 const AdminHelpDesk = () => {
@@ -30,6 +31,10 @@ const AdminHelpDesk = () => {
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [selectedRequest, setSelectedRequest] = useState<any>(null);
     const [editForm, setEditForm] = useState({ status: '', priority: '' });
+
+    // View Dialog
+    const [viewDialogOpen, setViewDialogOpen] = useState(false);
+    const [viewingRequest, setViewingRequest] = useState<any>(null);
 
     useEffect(() => {
         fetchStats();
@@ -248,6 +253,7 @@ const AdminHelpDesk = () => {
                             <TableCell>Category</TableCell>
                             <TableCell>Priority</TableCell>
                             <TableCell>Status</TableCell>
+                            <TableCell align="center">View</TableCell>
                             <TableCell align="right">Actions</TableCell>
                         </TableRow>
                     </TableHead>
@@ -270,8 +276,7 @@ const AdminHelpDesk = () => {
                                     </Typography>
                                 </TableCell>
                                 <TableCell sx={{ maxWidth: 300 }}>
-                                    <Typography variant="subtitle2" noWrap>{req.title}</Typography>
-                                    <Typography variant="caption" color="textSecondary" noWrap>{req.description}</Typography>
+                                    <Typography variant="subtitle2" noWrap title={req.title}>{req.title}</Typography>
                                 </TableCell>
                                 <TableCell><Chip label={req.category} size="small" variant="outlined" /></TableCell>
                                 <TableCell>
@@ -279,6 +284,14 @@ const AdminHelpDesk = () => {
                                 </TableCell>
                                 <TableCell>
                                     <Chip label={req.status} size="small" color={getStatusColor(req.status) as any} />
+                                </TableCell>
+                                <TableCell align="center">
+                                    <IconButton size="small" onClick={() => {
+                                        setViewingRequest(req);
+                                        setViewDialogOpen(true);
+                                    }}>
+                                        <VisibilityIcon fontSize="small" color="primary" />
+                                    </IconButton>
                                 </TableCell>
                                 <TableCell align="right">
                                     <IconButton size="small" onClick={() => openEditDialog(req)}>
@@ -335,6 +348,55 @@ const AdminHelpDesk = () => {
                 <DialogActions>
                     <Button onClick={() => setEditDialogOpen(false)}>Cancel</Button>
                     <Button variant="contained" onClick={handleUpdateSubmit}>Update</Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* View Dialog */}
+            <Dialog open={viewDialogOpen} onClose={() => setViewDialogOpen(false)} maxWidth="sm" fullWidth>
+                <DialogTitle>Request Details</DialogTitle>
+                <DialogContent dividers>
+                    {viewingRequest && (
+                        <Box>
+                            <Typography variant="h6" gutterBottom>{viewingRequest.title}</Typography>
+
+                            <Grid container spacing={2} sx={{ mb: 2, mt: 1 }}>
+                                <Grid size={{ xs: 6 }}>
+                                    <Typography variant="caption" color="textSecondary" display="block">Created At</Typography>
+                                    <Typography variant="body2" fontWeight="medium">{new Date(viewingRequest.createdAt).toLocaleString()}</Typography>
+                                </Grid>
+                                <Grid size={{ xs: 6 }}>
+                                    <Typography variant="caption" color="textSecondary" display="block">Requester</Typography>
+                                    <Typography variant="body2" fontWeight="medium">
+                                        {viewingRequest.isAnonymous ? 'Anonymous' : viewingRequest.user?.profile?.fullName || 'N/A'}
+                                        {viewingRequest.user?.mobileNumber && ` (${viewingRequest.user.mobileNumber})`}
+                                    </Typography>
+                                </Grid>
+                                <Grid size={{ xs: 6 }}>
+                                    <Typography variant="caption" color="textSecondary" display="block">Status</Typography>
+                                    <Box mt={0.5}>
+                                        <Chip label={viewingRequest.status} size="small" color={getStatusColor(viewingRequest.status) as any} />
+                                    </Box>
+                                </Grid>
+                                <Grid size={{ xs: 6 }}>
+                                    <Typography variant="caption" color="textSecondary" display="block">Priority / Category</Typography>
+                                    <Box mt={0.5} display="flex" gap={1}>
+                                        <Chip label={viewingRequest.priority} size="small" color={getPriorityColor(viewingRequest.priority) as any} />
+                                        <Chip label={viewingRequest.category} size="small" variant="outlined" />
+                                    </Box>
+                                </Grid>
+                            </Grid>
+
+                            <Typography variant="caption" color="textSecondary" display="block" sx={{ mt: 2 }}>Description</Typography>
+                            <Paper variant="outlined" sx={{ p: 2, mt: 1, bgcolor: '#f8fafc' }}>
+                                <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
+                                    {viewingRequest.description}
+                                </Typography>
+                            </Paper>
+                        </Box>
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setViewDialogOpen(false)}>Close</Button>
                 </DialogActions>
             </Dialog>
         </Box>

@@ -21,9 +21,13 @@ const OTPVerification = () => {
             return;
         }
         try {
-            await verifyOtp(mobileNumber, otp);
+            const data = await verifyOtp(mobileNumber, otp);
             showToast('Access Granted.', 'success');
-            navigate('/home');
+            if (data?.user?.role === 'ADMIN') {
+                navigate('/admin');
+            } else {
+                navigate('/home');
+            }
         } catch (error) {
             showToast('Invalid Code.', 'error');
         }

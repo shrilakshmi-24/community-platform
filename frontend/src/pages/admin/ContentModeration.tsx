@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Box, Typography, Tabs, Tab, Card, CardContent, Button, Chip, CircularProgress, Alert, MenuItem, FormControl, Select, InputLabel, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from '@mui/material';
+import { Box, Typography, Tabs, Tab, Card, CardContent, Button, Chip, CircularProgress, Alert, MenuItem, FormControl, Select, InputLabel } from '@mui/material';
 import type { SelectChangeEvent } from '@mui/material';
 import client from '../../api/client';
 
@@ -29,59 +29,6 @@ const ContentModeration = () => {
             setLoading(false);
         }
     }, [statusFilter]);
-
-    // Event Form State
-    const [openEventDialog, setOpenEventDialog] = useState(false);
-    const [eventForm, setEventForm] = useState({ title: '', description: '', date: '', location: '' });
-
-    // Achievement Form State
-    const [openAchievementDialog, setOpenAchievementDialog] = useState(false);
-    const [achievementForm, setAchievementForm] = useState({ userId: '', title: '', description: '', date: '', proofUrl: '' });
-    const [users, setUsers] = useState<User[]>([]);
-
-    useEffect(() => {
-        if (openAchievementDialog) {
-            fetchUsers();
-        }
-    }, [openAchievementDialog]);
-
-    const fetchUsers = async () => {
-        try {
-            const { data } = await client.get('/admin/users');
-            setUsers(data.users);
-        } catch (error) {
-            console.error('Failed to fetch users', error);
-        }
-    };
-
-    const handleCreateEvent = async () => {
-        try {
-            await client.post('/community/events/create', eventForm);
-            setOpenEventDialog(false);
-            setEventForm({ title: '', description: '', date: '', location: '' });
-            fetchContent();
-            alert('Event created successfully!');
-        } catch (error) {
-            console.error('Failed to create event', error);
-            alert('Failed to create event');
-        }
-    };
-
-    const handleCreateAchievement = async () => {
-        try {
-            if (!achievementForm.userId) {
-                alert('Please select a user');
-                return;
-            }
-            await client.post('/admin/achievements', achievementForm);
-            setOpenAchievementDialog(false);
-            setAchievementForm({ userId: '', title: '', description: '', date: '', proofUrl: '' });
-            alert('Achievement awarded successfully!');
-        } catch (error) {
-            console.error('Failed to create achievement', error);
-            alert('Failed to create achievement');
-        }
-    };
 
     useEffect(() => {
         fetchContent();
@@ -182,12 +129,6 @@ const ContentModeration = () => {
                     Content Moderation
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 2 }}>
-                    <Button variant="contained" onClick={() => setOpenEventDialog(true)}>
-                        Add Event
-                    </Button>
-                    <Button variant="contained" color="secondary" onClick={() => setOpenAchievementDialog(true)}>
-                        Award Achievement
-                    </Button>
                     <FormControl sx={{ minWidth: 200 }}>
                         <InputLabel id="status-filter-label">Filter Status</InputLabel>
                         <Select
@@ -249,107 +190,6 @@ const ContentModeration = () => {
                 </>
             )}
 
-            {/* Create Event Dialog */}
-            <Dialog open={openEventDialog} onClose={() => setOpenEventDialog(false)}>
-                <DialogTitle>Create New Event</DialogTitle>
-                <DialogContent>
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        label="Event Title"
-                        fullWidth
-                        value={eventForm.title}
-                        onChange={(e) => setEventForm({ ...eventForm, title: e.target.value })}
-                    />
-                    <TextField
-                        margin="dense"
-                        label="Description"
-                        fullWidth
-                        multiline
-                        rows={3}
-                        value={eventForm.description}
-                        onChange={(e) => setEventForm({ ...eventForm, description: e.target.value })}
-                    />
-                    <TextField
-                        margin="dense"
-                        label="Date"
-                        type="datetime-local"
-                        fullWidth
-                        InputLabelProps={{ shrink: true }}
-                        value={eventForm.date}
-                        onChange={(e) => setEventForm({ ...eventForm, date: e.target.value })}
-                    />
-                    <TextField
-                        margin="dense"
-                        label="Location"
-                        fullWidth
-                        value={eventForm.location}
-                        onChange={(e) => setEventForm({ ...eventForm, location: e.target.value })}
-                    />
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setOpenEventDialog(false)}>Cancel</Button>
-                    <Button onClick={handleCreateEvent} variant="contained">Create</Button>
-                </DialogActions>
-            </Dialog>
-
-            {/* Create Achievement Dialog */}
-            <Dialog open={openAchievementDialog} onClose={() => setOpenAchievementDialog(false)} maxWidth="sm" fullWidth>
-                <DialogTitle>Award Achievement</DialogTitle>
-                <DialogContent>
-                    <FormControl fullWidth margin="dense">
-                        <InputLabel id="user-select-label">Select User</InputLabel>
-                        <Select
-                            labelId="user-select-label"
-                            value={achievementForm.userId}
-                            label="Select User"
-                            onChange={(e) => setAchievementForm({ ...achievementForm, userId: e.target.value })}
-                        >
-                            {users.map((user) => (
-                                <MenuItem key={user.id} value={user.id}>
-                                    {user.profile?.fullName || user.email} ({user.email})
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-                    <TextField
-                        margin="dense"
-                        label="Achievement Title"
-                        fullWidth
-                        value={achievementForm.title}
-                        onChange={(e) => setAchievementForm({ ...achievementForm, title: e.target.value })}
-                    />
-                    <TextField
-                        margin="dense"
-                        label="Description"
-                        fullWidth
-                        multiline
-                        rows={3}
-                        value={achievementForm.description}
-                        onChange={(e) => setAchievementForm({ ...achievementForm, description: e.target.value })}
-                    />
-                    <TextField
-                        margin="dense"
-                        label="Date"
-                        type="date"
-                        fullWidth
-                        InputLabelProps={{ shrink: true }}
-                        value={achievementForm.date}
-                        onChange={(e) => setAchievementForm({ ...achievementForm, date: e.target.value })}
-                    />
-                    <TextField
-                        margin="dense"
-                        label="Proof URL (Optional)"
-                        fullWidth
-                        value={achievementForm.proofUrl}
-                        onChange={(e) => setAchievementForm({ ...achievementForm, proofUrl: e.target.value })}
-                    />
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setOpenAchievementDialog(false)}>Cancel</Button>
-                    <Button onClick={handleCreateAchievement} variant="contained" color="secondary">Award</Button>
-                </DialogActions>
-            </Dialog>
         </Box>
     );
 };
