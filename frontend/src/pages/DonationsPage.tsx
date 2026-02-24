@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Container, Typography, Box, Card, CardContent, Button, LinearProgress, Skeleton, GridLegacy as Grid } from '@mui/material';
+import { Container, Typography, Box, Card, CardContent, Button, LinearProgress, Skeleton, GridLegacy as Grid, Dialog, DialogTitle, DialogContent, DialogActions, TextField, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import QrCode2Icon from '@mui/icons-material/QrCode2';
 import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
@@ -9,26 +9,64 @@ const DonationsPage = () => {
     const [campaigns, setCampaigns] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
+    const [openDialog, setOpenDialog] = useState(false);
+    const [selectedCampaign, setSelectedCampaign] = useState<any>(null);
+    const [amount, setAmount] = useState<number | ''>('');
+    const [paymentMethod, setPaymentMethod] = useState('UPI');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const fetchDonations = async () => {
+        try {
+            const { data } = await client.get('/donations/all');
+            setCampaigns(data.donations.map((d: any) => ({
+                id: d.id,
+                title: d.title,
+                target: d.targetAmount || 0,
+                raised: d.collectedAmount || 0,
+                description: d.description,
+                upiId: d.upiId
+            })));
+        } catch (error) {
+            console.error('Failed to fetch donations', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const fetchDonations = async () => {
-            try {
-                const { data } = await client.get('/donations/all');
-                setCampaigns(data.donations.map((d: any) => ({
-                    id: d.id,
-                    title: d.title,
-                    target: d.targetAmount || 0,
-                    raised: d.collectedAmount || 0,
-                    description: d.description,
-                    upiId: d.upiId
-                })));
-            } catch (error) {
-                console.error('Failed to fetch donations', error);
-            } finally {
-                setLoading(false);
-            }
-        };
         fetchDonations();
     }, []);
+
+    const handleOpenDonate = (campaign: any) => {
+        setSelectedCampaign(campaign);
+        setAmount('');
+        setPaymentMethod('UPI');
+        setOpenDialog(true);
+    };
+
+    const handleDonateSubmit = async () => {
+        if (!amount || amount <= 0) {
+            alert('Please enter a valid amount');
+            return;
+        }
+        setIsSubmitting(true);
+        try {
+            await client.post('/donations/record', {
+                amount: Number(amount),
+                donationId: selectedCampaign?.id,
+                paymentMethod,
+                paymentStatus: 'SUCCESS'
+            });
+            alert('Thank you for your donation!');
+            setOpenDialog(false);
+            fetchDonations(); // Refresh the progress bars
+        } catch (error) {
+            console.error('Donation failed', error);
+            alert('Donation processing failed. Please try again.');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     return (
         <Box sx={{ minHeight: '100vh', bgcolor: '#f8f9fa', pt: 6, pb: 10 }}>
@@ -81,6 +119,7 @@ const DonationsPage = () => {
                                                     variant="contained"
                                                     fullWidth
                                                     startIcon={<VolunteerActivismIcon />}
+                                                    onClick={() => handleOpenDonate(campaign)}
                                                     sx={{
                                                         bgcolor: '#059669',
                                                         color: 'white', fontWeight: 700,
@@ -123,6 +162,54 @@ const DonationsPage = () => {
                         </Card>
                     </Grid>
                 </Grid>
+
+                {/* Donation Dialog */}
+                <Dialog open={openDialog} onClose={() => !isSubmitting && setOpenDialog(false)} maxWidth="xs" fullWidth>
+                    <DialogTitle fontWeight={800} color="#1e293b">
+                        Donate to {selectedCampaign?.title}
+                    </DialogTitle>
+                    <DialogContent dividers>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, pt: 1 }}>
+                            <TextField
+                                label="Amount (₹)"
+                                type="number"
+                                fullWidth
+                                variant="outlined"
+                                value={amount}
+                                onChange={(e) => setAmount(Number(e.target.value) || '')}
+                                disabled={isSubmitting}
+                                InputProps={{
+                                    startAdornment: <CurrencyRupeeIcon sx={{ color: '#64748b', mr: 1, fontSize: 20 }} />
+                                }}
+                            />
+                            <FormControl fullWidth disabled={isSubmitting}>
+                                <InputLabel>Payment Method</InputLabel>
+                                <Select
+                                    value={paymentMethod}
+                                    label="Payment Method"
+                                    onChange={(e) => setPaymentMethod(e.target.value)}
+                                >
+                                    <MenuItem value="UPI">UPI</MenuItem>
+                                    <MenuItem value="CARD">Credit / Debit Card</MenuItem>
+                                    <MenuItem value="NETBANKING">Net Banking</MenuItem>
+                                </Select>
+                            </FormControl>
+                        </Box>
+                    </DialogContent>
+                    <DialogActions sx={{ p: 2 }}>
+                        <Button onClick={() => setOpenDialog(false)} disabled={isSubmitting} sx={{ color: '#64748b', fontWeight: 600 }}>
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="contained"
+                            onClick={handleDonateSubmit}
+                            disabled={isSubmitting || !amount}
+                            sx={{ bgcolor: '#059669', '&:hover': { bgcolor: '#047857' }, fontWeight: 700, px: 3 }}
+                        >
+                            {isSubmitting ? 'Processing...' : 'Complete Payment'}
+                        </Button>
+                    </DialogActions>
+                </Dialog>
             </Container>
         </Box>
     );

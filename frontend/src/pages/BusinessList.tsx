@@ -13,6 +13,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import EmailIcon from '@mui/icons-material/Email';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import LanguageIcon from '@mui/icons-material/Language';
+import ShareIcon from '@mui/icons-material/Share';
 
 interface Business {
     id: string;
@@ -37,6 +38,24 @@ const BusinessList = () => {
     const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
 
     const categories = ['All', 'Retail', 'IT Services', 'Food & Beverage', 'Interior Design', 'Health & Fitness', 'Education', 'Other'];
+
+    const handleShare = async (business: Business) => {
+        const shareText = `Check out this business from our community directory!\n\n🏢 ${business.businessName}\n🏷️ Category: ${business.category}\n\n📝 ${business.description}\n\n📍 Address: ${business.address}${business.contactPhone ? `\n📞 Phone: ${business.contactPhone}` : ''}${business.contactEmail ? `\n✉️ Email: ${business.contactEmail}` : ''}${business.ownerName ? `\n👤 Owner: ${business.ownerName}` : ''}${business.website ? `\n🌐 Website: ${business.website}` : ''}`;
+
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: `Business Recommendation: ${business.businessName}`,
+                    text: shareText,
+                });
+            } catch (error) {
+                console.error('Error sharing:', error);
+            }
+        } else {
+            navigator.clipboard.writeText(shareText);
+            alert('Business details copied to clipboard! You can now paste and share them.');
+        }
+    };
 
     useEffect(() => {
         const fetchBusinesses = async () => {
@@ -291,9 +310,14 @@ const BusinessList = () => {
                                         <Chip label={selectedBusiness.category} size="small" sx={{ mt: 0.5, bgcolor: '#fdf2f4', color: '#FA8231', fontWeight: 600 }} />
                                     </Box>
                                 </Box>
-                                <IconButton onClick={() => setSelectedBusiness(null)} size="small">
-                                    <CloseIcon />
-                                </IconButton>
+                                <Box>
+                                    <IconButton onClick={() => handleShare(selectedBusiness)} size="small" sx={{ mr: 1, color: '#FA8231', bgcolor: '#fdf2f4', '&:hover': { bgcolor: '#fce7f3' } }} title="Share Business Details">
+                                        <ShareIcon />
+                                    </IconButton>
+                                    <IconButton onClick={() => setSelectedBusiness(null)} size="small">
+                                        <CloseIcon />
+                                    </IconButton>
+                                </Box>
                             </Box>
 
                             <DialogContent sx={{ p: 3 }}>
