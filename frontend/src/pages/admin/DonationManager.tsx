@@ -24,6 +24,15 @@ interface Transaction {
     createdAt: string;
     paymentMethod: string;
     paymentStatus: string;
+    donorUser?: {
+        profile?: {
+            fullName?: string;
+            email?: string;
+        };
+    };
+    donation?: {
+        title?: string;
+    };
 }
 
 const DonationManager = () => {
@@ -126,14 +135,14 @@ const DonationManager = () => {
                                 <TableCell>
                                     <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
                                         {/* Priority: User Profile Name > Explicit Donor Name > Anonymous */}
-                                        {(tx as any).donorUser?.profile?.fullName || tx.donorName || 'Anonymous'}
+                                        {tx.donorUser?.profile?.fullName || tx.donorName || 'Anonymous'}
                                     </Typography>
                                     <Typography variant="caption" color="textSecondary">
-                                        {(tx as any).donorUser?.profile?.email || tx.donorEmail || ''}
+                                        {tx.donorUser?.profile?.email || tx.donorEmail || ''}
                                     </Typography>
                                 </TableCell>
                                 <TableCell>
-                                    <Typography variant="body2">{(tx as any).donation?.title || 'General Fund'}</Typography>
+                                    <Typography variant="body2">{tx.donation?.title || 'General Fund'}</Typography>
                                 </TableCell>
                                 <TableCell sx={{ fontWeight: 'bold' }}>₹{tx.amount.toLocaleString()}</TableCell>
                                 <TableCell>{new Date(tx.createdAt).toLocaleDateString()}</TableCell> {/* Added Date cell, using createdAt */}
