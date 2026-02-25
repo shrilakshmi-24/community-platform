@@ -24,8 +24,8 @@ const PublicLayout = () => {
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-            <AppBar position="sticky" sx={{
-                bgcolor: 'rgba(255, 255, 255, 0.8)',
+            <AppBar position="sticky" color="transparent" sx={{
+                background: 'rgba(255, 255, 255, 0.8)',
                 backdropFilter: 'blur(20px)',
                 boxShadow: '0 4px 30px rgba(0, 0, 0, 0.05)',
                 borderBottom: '1px solid rgba(0, 0, 0, 0.05)',
