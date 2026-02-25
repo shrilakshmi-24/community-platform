@@ -32,3 +32,4 @@ prisma/migrations/
 coverage/
 .vercel
 .env*.local
+.agent
