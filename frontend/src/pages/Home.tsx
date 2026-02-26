@@ -147,15 +147,21 @@ const Home = () => {
                                     size="large"
                                     onClick={() => navigate('/profile')}
                                     sx={{
-                                        bgcolor: 'white',
-                                        color: colors.primary,
+                                        background: '#ffffff', // Override theme background gradient
+                                        color: '#E62A4D', // Deep vibrant red for better contrast
                                         px: 4,
                                         py: 1.5,
                                         fontSize: '1.1rem',
-                                        fontWeight: 700,
-                                        '&:hover': { bgcolor: colors.light, transform: 'translateY(-2px)', boxShadow: 4 },
-                                        transition: 'all 0.3s',
-                                        borderRadius: 2
+                                        fontWeight: 900,
+                                        boxShadow: '0 8px 24px -6px rgba(0,0,0,0.3)',
+                                        '&:hover': {
+                                            background: '#ffffff',
+                                            color: '#B01030', // Darker red on hover
+                                            transform: 'translateY(-3px)',
+                                            boxShadow: '0 12px 28px -6px rgba(0,0,0,0.4)'
+                                        },
+                                        transition: 'all 0.3s ease',
+                                        borderRadius: '50px' // Pill shape to match modern theme
                                     }}
                                 >
                                     Join Our Community
@@ -403,19 +409,21 @@ const Home = () => {
                         size="large"
                         onClick={() => navigate('/profile')}
                         sx={{
-                            bgcolor: 'white',
-                            color: colors.primary,
+                            background: '#ffffff',
+                            color: '#E62A4D', // Deep vibrant red for better contrast
                             px: 5,
                             py: 1.5,
                             fontSize: '1.1rem',
-                            fontWeight: 700,
-                            borderRadius: 2,
+                            fontWeight: 900,
+                            boxShadow: '0 8px 24px -6px rgba(0,0,0,0.3)',
+                            borderRadius: '50px', // Pill shape
                             '&:hover': {
-                                bgcolor: colors.light,
-                                transform: 'scale(1.05)',
-                                boxShadow: 6
+                                background: '#ffffff',
+                                color: '#B01030', // Darker red on hover
+                                transform: 'scale(1.03)',
+                                boxShadow: '0 15px 35px -5px rgba(0,0,0,0.4)'
                             },
-                            transition: 'all 0.3s'
+                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
                         }}
                     >
                         Complete Your Profile

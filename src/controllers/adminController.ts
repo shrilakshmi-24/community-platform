@@ -22,7 +22,7 @@ export const getStats = async (req: Request, res: Response): Promise<void> => {
             }
         });
     } catch (error) {
-        res.status(500).json({ message: 'Error fetching stats', error });
+        console.error('Error in getStats:', error); res.status(500).json({ message: 'Error fetching stats', error });
     }
 };
 

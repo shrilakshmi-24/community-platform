@@ -3,12 +3,14 @@ import {
     Box, Typography, Button, Alert, Dialog, DialogTitle, DialogContent,
     DialogActions, TextField, CircularProgress, Table, TableBody,
     TableCell, TableContainer, TableHead, TableRow, Paper, Checkbox,
-    IconButton, Tooltip, Toolbar, alpha
+    IconButton, Tooltip, Toolbar, Avatar
 } from '@mui/material';
 import client from '../../api/client';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
-import FilterListIcon from '@mui/icons-material/FilterList';
+import PendingActionsIcon from '@mui/icons-material/PendingActions';
+
+const BRAND_GRADIENT_LIGHT = 'linear-gradient(135deg, rgba(250, 130, 49, 0.08) 0%, rgba(230, 42, 77, 0.08) 100%)';
 
 interface UserProfile {
     fullName: string;
@@ -35,7 +37,7 @@ const UserVerification = () => {
         try {
             const { data } = await client.get('/admin/pending-members');
             setPendingMembers(data.members);
-            setSelectedIds([]); // Reset selection on refresh
+            setSelectedIds([]);
         } catch (error) {
             console.error('Failed to fetch pending members', error);
         } finally {
@@ -89,8 +91,7 @@ const UserVerification = () => {
         }
     };
 
-    const handleBulkReject = async () => {
-        // Just open the dialog, we'll use selectedIds in the confirm action
+    const handleBulkReject = () => {
         setRejectDialogOpen(true);
     };
 
@@ -110,8 +111,8 @@ const UserVerification = () => {
         }
     };
 
-    // Single action handlers - just wrap in array
-    const handleSingleApprove = (id: string) => {
+    const handleSingleApprove = (id: string, e: React.MouseEvent) => {
+        e.stopPropagation();
         setSelectedIds([id]);
 
         if (!window.confirm('Approve this member?')) return;
@@ -124,76 +125,86 @@ const UserVerification = () => {
             .catch(() => setMessage({ type: 'error', text: 'Failed to approve member.' }));
     };
 
-    const handleSingleReject = (id: string) => {
+    const handleSingleReject = (id: string, e: React.MouseEvent) => {
+        e.stopPropagation();
         setSelectedIds([id]);
         setRejectDialogOpen(true);
     };
 
-    if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', p: 5 }}><CircularProgress /></Box>;
+    if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', p: 10 }}><CircularProgress sx={{ color: '#E62A4D' }} /></Box>;
 
     return (
-        <Box>
-            <Typography variant="h4" gutterBottom>
-                Pending Member Approvals
-            </Typography>
+        <Box sx={{ pb: 6 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, gap: 1.5 }}>
+                <Box sx={{ p: 1, background: BRAND_GRADIENT_LIGHT, borderRadius: '10px' }}>
+                    <PendingActionsIcon sx={{ color: '#E62A4D', fontSize: 28 }} />
+                </Box>
+                <Box>
+                    <Typography variant="h4" fontWeight={800} sx={{ color: '#0f172a', letterSpacing: '-0.5px' }}>
+                        Pending Member Approvals
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: '#64748b', fontWeight: 500 }}>
+                        Review and verify new community registrations
+                    </Typography>
+                </Box>
+            </Box>
 
             {message && (
-                <Alert severity={message.type} sx={{ mb: 2 }} onClose={() => setMessage(null)}>
+                <Alert severity={message.type} sx={{ mb: 3, borderRadius: '12px', fontWeight: 600 }} onClose={() => setMessage(null)}>
                     {message.text}
                 </Alert>
             )}
 
-            <Paper sx={{ width: '100%', mb: 2 }}>
-                {/* Enhanced Toolbar */}
-                {selectedIds.length > 0 ? (
-                    <Toolbar
-                        sx={{
-                            pl: { sm: 2 },
-                            pr: { xs: 1, sm: 1 },
-                            bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.action.activatedOpacity),
-                        }}
-                    >
-                        <Typography sx={{ flex: '1 1 100%' }} color="inherit" variant="subtitle1" component="div">
-                            {selectedIds.length} selected
+            <Paper sx={{ width: '100%', mb: 2, borderRadius: '20px', boxShadow: '0 4px 20px -5px rgba(0,0,0,0.05)', border: '1px solid rgba(226, 232, 240, 0.8)', overflow: 'hidden' }}>
+                <Toolbar
+                    sx={{
+                        pl: { sm: 3 },
+                        pr: { xs: 2, sm: 3 },
+                        bgcolor: selectedIds.length > 0 ? 'rgba(230, 42, 77, 0.05)' : 'white',
+                        borderBottom: '1px solid #f1f5f9',
+                        minHeight: '70px !important'
+                    }}
+                >
+                    {selectedIds.length > 0 ? (
+                        <>
+                            <Typography sx={{ flex: '1 1 100%', fontWeight: 700, color: '#E62A4D' }} variant="subtitle1" component="div">
+                                {selectedIds.length} members selected
+                            </Typography>
+                            <Box sx={{ display: 'flex', gap: 1 }}>
+                                <Tooltip title="Reject Selected">
+                                    <Button
+                                        variant="outlined"
+                                        color="error"
+                                        onClick={handleBulkReject}
+                                        startIcon={<CancelIcon />}
+                                        sx={{ borderRadius: '8px', fontWeight: 700, borderColor: '#fca5a5' }}
+                                    >
+                                        Reject
+                                    </Button>
+                                </Tooltip>
+                                <Tooltip title="Approve Selected">
+                                    <Button
+                                        variant="contained"
+                                        color="success"
+                                        onClick={handleBulkApprove}
+                                        startIcon={<CheckCircleIcon />}
+                                        sx={{ borderRadius: '8px', fontWeight: 700, bgcolor: '#10b981', '&:hover': { bgcolor: '#059669' }, boxShadow: 'none' }}
+                                    >
+                                        Approve
+                                    </Button>
+                                </Tooltip>
+                            </Box>
+                        </>
+                    ) : (
+                        <Typography sx={{ flex: '1 1 100%', fontWeight: 800, color: '#1e293b' }} variant="h6" id="tableTitle" component="div">
+                            Applications List
                         </Typography>
-                        <Tooltip title="Approve Selected">
-                            <Button
-                                variant="contained"
-                                color="success"
-                                onClick={handleBulkApprove}
-                                sx={{ mr: 1 }}
-                                startIcon={<CheckCircleIcon />}
-                            >
-                                Approve
-                            </Button>
-                        </Tooltip>
-                        <Tooltip title="Reject Selected">
-                            <Button
-                                variant="outlined"
-                                color="error"
-                                onClick={handleBulkReject}
-                                startIcon={<CancelIcon />}
-                            >
-                                Reject
-                            </Button>
-                        </Tooltip>
-                    </Toolbar>
-                ) : (
-                    <Toolbar sx={{ pl: { sm: 2 }, pr: { xs: 1, sm: 1 } }}>
-                        <Typography sx={{ flex: '1 1 100%' }} variant="h6" id="tableTitle" component="div">
-                            Applications
-                        </Typography>
-                        <Tooltip title="Filter list">
-                            <IconButton>
-                                <FilterListIcon />
-                            </IconButton>
-                        </Tooltip>
-                    </Toolbar>
-                )}
+                    )}
+                </Toolbar>
 
                 <TableContainer>
                     <Table>
-                        <TableHead>
+                        <TableHead sx={{ bgcolor: '#f8fafc' }}>
                             <TableRow>
                                 <TableCell padding="checkbox">
                                     <Checkbox
@@ -201,20 +212,21 @@ const UserVerification = () => {
                                         indeterminate={selectedIds.length > 0 && selectedIds.length < pendingMembers.length}
                                         checked={pendingMembers.length > 0 && selectedIds.length === pendingMembers.length}
                                         onChange={handleSelectAllClick}
-                                        inputProps={{ 'aria-label': 'select all members' }}
+                                        sx={{ '&.Mui-checked': { color: '#E62A4D' }, '&.MuiCheckbox-indeterminate': { color: '#FA8231' } }}
                                     />
                                 </TableCell>
-                                <TableCell>Name</TableCell>
-                                <TableCell>Email</TableCell>
-                                <TableCell>Location</TableCell>
-                                <TableCell>Submitted Date</TableCell>
-                                <TableCell align="right">Actions</TableCell>
+                                <TableCell sx={{ fontWeight: 700, color: '#475569', py: 2 }}>Applicant Details</TableCell>
+                                <TableCell sx={{ fontWeight: 700, color: '#475569', py: 2 }}>Location</TableCell>
+                                <TableCell sx={{ fontWeight: 700, color: '#475569', py: 2 }}>Submitted Date</TableCell>
+                                <TableCell align="right" sx={{ fontWeight: 700, color: '#475569', py: 2 }}>Actions</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
                             {pendingMembers.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={6} align="center">No pending members at this time.</TableCell>
+                                    <TableCell colSpan={5} align="center" sx={{ py: 8 }}>
+                                        <Typography variant="body1" fontWeight={600} sx={{ color: '#64748b' }}>No pending applications currently.</Typography>
+                                    </TableCell>
                                 </TableRow>
                             ) : (
                                 pendingMembers.map((member) => {
@@ -227,36 +239,60 @@ const UserVerification = () => {
                                             tabIndex={-1}
                                             key={member.id}
                                             selected={isSelected}
+                                            onClick={() => handleClick(member.id)}
+                                            sx={{ cursor: 'pointer', '&.Mui-selected, &.Mui-selected:hover': { bgcolor: 'rgba(250, 130, 49, 0.04)' }, '&:last-child td, &:last-child th': { border: 0 } }}
                                         >
                                             <TableCell padding="checkbox">
                                                 <Checkbox
                                                     color="primary"
                                                     checked={isSelected}
-                                                    onChange={() => handleClick(member.id)}
-                                                    inputProps={{ 'aria-labelledby': `enhanced-table-checkbox-${member.id}` }}
+                                                    sx={{ '&.Mui-checked': { color: '#E62A4D' } }}
                                                 />
                                             </TableCell>
                                             <TableCell>
-                                                <Typography variant="subtitle2">
-                                                    {member.profile?.fullName || 'No Name'}
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                                    <Avatar sx={{ bgcolor: BRAND_GRADIENT_LIGHT, color: '#E62A4D', fontWeight: 700 }}>
+                                                        {(member.profile?.fullName || 'N').charAt(0).toUpperCase()}
+                                                    </Avatar>
+                                                    <Box>
+                                                        <Typography variant="subtitle2" fontWeight={700} sx={{ color: '#0f172a' }}>
+                                                            {member.profile?.fullName || 'No Name Provided'}
+                                                        </Typography>
+                                                        <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 500 }}>
+                                                            {member.profile?.email || 'No email'}
+                                                        </Typography>
+                                                    </Box>
+                                                </Box>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Typography variant="body2" fontWeight={600} sx={{ color: '#475569' }}>
+                                                    {member.profile?.city || '-'}, {member.profile?.state || '-'}
                                                 </Typography>
                                             </TableCell>
-                                            <TableCell>{member.profile?.email || 'N/A'}</TableCell>
-                                            <TableCell>{member.profile?.city || '-'}, {member.profile?.state || '-'}</TableCell>
                                             <TableCell>
-                                                {member.profile?.submittedAt ? new Date(member.profile.submittedAt).toLocaleDateString() : 'N/A'}
+                                                <Typography variant="body2" sx={{ color: '#64748b' }}>
+                                                    {member.profile?.submittedAt ? new Date(member.profile.submittedAt).toLocaleDateString() : 'Unknown'}
+                                                </Typography>
                                             </TableCell>
                                             <TableCell align="right">
-                                                <Tooltip title="Approve">
-                                                    <IconButton color="success" onClick={() => handleSingleApprove(member.id)}>
-                                                        <CheckCircleIcon />
-                                                    </IconButton>
-                                                </Tooltip>
-                                                <Tooltip title="Reject">
-                                                    <IconButton color="error" onClick={() => handleSingleReject(member.id)}>
-                                                        <CancelIcon />
-                                                    </IconButton>
-                                                </Tooltip>
+                                                <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+                                                    <Tooltip title="Approve">
+                                                        <IconButton
+                                                            onClick={(e) => handleSingleApprove(member.id, e)}
+                                                            sx={{ color: '#10b981', bgcolor: '#ecfdf5', '&:hover': { bgcolor: '#d1fae5' }, width: 36, height: 36 }}
+                                                        >
+                                                            <CheckCircleIcon fontSize="small" />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                    <Tooltip title="Reject">
+                                                        <IconButton
+                                                            onClick={(e) => handleSingleReject(member.id, e)}
+                                                            sx={{ color: '#ef4444', bgcolor: '#fef2f2', '&:hover': { bgcolor: '#fee2e2' }, width: 36, height: 36 }}
+                                                        >
+                                                            <CancelIcon fontSize="small" />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </Box>
                                             </TableCell>
                                         </TableRow>
                                     );
@@ -267,12 +303,15 @@ const UserVerification = () => {
                 </TableContainer>
             </Paper>
 
-            {/* Reject Dialog */}
-            <Dialog open={rejectDialogOpen} onClose={() => setRejectDialogOpen(false)}>
-                <DialogTitle>Reject Application(s)</DialogTitle>
+            <Dialog
+                open={rejectDialogOpen}
+                onClose={() => setRejectDialogOpen(false)}
+                PaperProps={{ sx: { borderRadius: '16px', p: 1 } }}
+            >
+                <DialogTitle sx={{ fontWeight: 800, color: '#0f172a' }}>Reject Application(s)</DialogTitle>
                 <DialogContent>
-                    <Typography variant="body2" sx={{ mb: 2 }}>
-                        You are about to reject {selectedIds.length} application(s).
+                    <Typography variant="body1" sx={{ mb: 3, color: '#475569' }}>
+                        You are about to reject <Box component="span" sx={{ fontWeight: 700, color: '#E62A4D' }}>{selectedIds.length}</Box> application(s).
                     </Typography>
                     <TextField
                         autoFocus
@@ -283,12 +322,25 @@ const UserVerification = () => {
                         rows={3}
                         value={rejectReason}
                         onChange={(e) => setRejectReason(e.target.value)}
-                        placeholder="Provide a reason (sent to user)"
+                        placeholder="Please provide a clear reason to be sent to the user(s)."
+                        sx={{
+                            '& .MuiOutlinedInput-root': {
+                                borderRadius: '12px',
+                                bgcolor: '#f8fafc',
+                                '&.Mui-focused fieldset': { borderColor: '#E62A4D' }
+                            }
+                        }}
                     />
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setRejectDialogOpen(false)}>Cancel</Button>
-                    <Button onClick={confirmReject} color="error" variant="contained" disabled={!rejectReason}>
+                <DialogActions sx={{ px: 3, pb: 2 }}>
+                    <Button onClick={() => setRejectDialogOpen(false)} sx={{ color: '#64748b', fontWeight: 600 }}>Cancel</Button>
+                    <Button
+                        onClick={confirmReject}
+                        color="error"
+                        variant="contained"
+                        disabled={!rejectReason}
+                        sx={{ borderRadius: '8px', fontWeight: 700, boxShadow: 'none' }}
+                    >
                         Confirm Rejection
                     </Button>
                 </DialogActions>

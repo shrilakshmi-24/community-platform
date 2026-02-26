@@ -1,6 +1,13 @@
 import { useState, useEffect } from 'react';
-import { Box, Typography, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, LinearProgress, Card, CardContent } from '@mui/material';
+import { Box, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, LinearProgress, Card, CardContent, Chip, Avatar, GridLegacy as Grid } from '@mui/material';
 import client from '../../api/client';
+import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import GroupsIcon from '@mui/icons-material/Groups';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+
+const BRAND_GRADIENT = 'linear-gradient(135deg, #FA8231 0%, #E62A4D 100%)';
+const BRAND_GRADIENT_LIGHT = 'linear-gradient(135deg, rgba(250, 130, 49, 0.08) 0%, rgba(230, 42, 77, 0.08) 100%)';
 
 interface Campaign {
     id: string;
@@ -56,98 +63,232 @@ const DonationManager = () => {
         fetchData();
     }, []);
 
-    if (loading) return <LinearProgress />;
+    if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', p: 10 }}><LinearProgress sx={{ width: '50%', '& .MuiLinearProgress-bar': { background: BRAND_GRADIENT } }} /></Box>;
 
     return (
-        <Box>
-            <Typography variant="h4" gutterBottom>
-                Donation Management
-            </Typography>
+        <Box sx={{ pb: 6 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, gap: 1.5 }}>
+                <Box sx={{ p: 1, background: BRAND_GRADIENT_LIGHT, borderRadius: '10px' }}>
+                    <VolunteerActivismIcon sx={{ color: '#E62A4D', fontSize: 28 }} />
+                </Box>
+                <Box>
+                    <Typography variant="h4" fontWeight={800} sx={{ color: '#0f172a', letterSpacing: '-0.5px' }}>
+                        Donation Management
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: '#64748b', fontWeight: 500 }}>
+                        Track and manage community contributions
+                    </Typography>
+                </Box>
+            </Box>
 
             {summary && (
-                <Grid container spacing={3} sx={{ mb: 4 }}>
-                    <Grid size={{ xs: 12, md: 4 }}>
-                        <Paper sx={{ p: 3, textAlign: 'center', bgcolor: '#e3f2fd' }}>
-                            <Typography variant="subtitle1">Total Donations</Typography>
-                            <Typography variant="h4">₹{summary.totalAmount.toLocaleString()}</Typography>
+                <Grid container spacing={3} sx={{ mb: 5 }}>
+                    <Grid item xs={12} md={4}>
+                        <Paper sx={{
+                            p: 3,
+                            borderRadius: '20px',
+                            border: '1px solid rgba(226, 232, 240, 0.8)',
+                            boxShadow: '0 4px 15px -5px rgba(0,0,0,0.05)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 2,
+                            position: 'relative',
+                            overflow: 'hidden'
+                        }}>
+                            <Box sx={{ position: 'absolute', top: 0, left: 0, width: '4px', height: '100%', background: BRAND_GRADIENT }} />
+                            <Avatar sx={{ bgcolor: BRAND_GRADIENT_LIGHT, color: '#E62A4D', width: 56, height: 56 }}>
+                                <AccountBalanceWalletIcon fontSize="large" />
+                            </Avatar>
+                            <Box>
+                                <Typography variant="h4" fontWeight={800} sx={{ color: '#0f172a', lineHeight: 1, mb: 0.5 }}>
+                                    ₹{summary.totalAmount.toLocaleString()}
+                                </Typography>
+                                <Typography variant="body2" fontWeight={600} sx={{ color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                    Total Donations
+                                </Typography>
+                            </Box>
                         </Paper>
                     </Grid>
-                    <Grid size={{ xs: 12, md: 4 }}>
-                        <Paper sx={{ p: 3, textAlign: 'center', bgcolor: '#e8f5e9' }}>
-                            <Typography variant="subtitle1">Total Donors</Typography>
-                            <Typography variant="h4">{summary.uniqueDonors}</Typography> {/* Changed from donorCount to uniqueDonors for consistency */}
+                    <Grid item xs={12} md={4}>
+                        <Paper sx={{
+                            p: 3,
+                            borderRadius: '20px',
+                            border: '1px solid rgba(226, 232, 240, 0.8)',
+                            boxShadow: '0 4px 15px -5px rgba(0,0,0,0.05)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 2,
+                            position: 'relative',
+                            overflow: 'hidden'
+                        }}>
+                            <Box sx={{ position: 'absolute', top: 0, left: 0, width: '4px', height: '100%', background: BRAND_GRADIENT }} />
+                            <Avatar sx={{ bgcolor: '#ecfdf5', color: '#10b981', width: 56, height: 56 }}>
+                                <GroupsIcon fontSize="large" />
+                            </Avatar>
+                            <Box>
+                                <Typography variant="h4" fontWeight={800} sx={{ color: '#0f172a', lineHeight: 1, mb: 0.5 }}>
+                                    {summary.uniqueDonors}
+                                </Typography>
+                                <Typography variant="body2" fontWeight={600} sx={{ color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                    Unique Donors
+                                </Typography>
+                            </Box>
                         </Paper>
                     </Grid>
-                    <Grid size={{ xs: 12, md: 4 }}>
-                        <Paper sx={{ p: 3, textAlign: 'center', bgcolor: '#fff3e0' }}>
-                            <Typography variant="subtitle1">Avg. Donation</Typography>
-                            <Typography variant="h4">₹{Math.round(summary.totalAmount / (summary.uniqueDonors || 1)).toLocaleString()}</Typography> {/* Changed from donorCount to uniqueDonors */}
+                    <Grid item xs={12} md={4}>
+                        <Paper sx={{
+                            p: 3,
+                            borderRadius: '20px',
+                            border: '1px solid rgba(226, 232, 240, 0.8)',
+                            boxShadow: '0 4px 15px -5px rgba(0,0,0,0.05)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 2,
+                            position: 'relative',
+                            overflow: 'hidden'
+                        }}>
+                            <Box sx={{ position: 'absolute', top: 0, left: 0, width: '4px', height: '100%', background: BRAND_GRADIENT }} />
+                            <Avatar sx={{ bgcolor: '#eff6ff', color: '#3b82f6', width: 56, height: 56 }}>
+                                <TrendingUpIcon fontSize="large" />
+                            </Avatar>
+                            <Box>
+                                <Typography variant="h4" fontWeight={800} sx={{ color: '#0f172a', lineHeight: 1, mb: 0.5 }}>
+                                    ₹{Math.round(summary.totalAmount / (summary.uniqueDonors || 1)).toLocaleString()}
+                                </Typography>
+                                <Typography variant="body2" fontWeight={600} sx={{ color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                    Avg. Donation
+                                </Typography>
+                            </Box>
                         </Paper>
                     </Grid>
                 </Grid>
             )}
 
 
-            {/* Campaigns Section (Placeholder) */}
-            <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>Active Campaigns</Typography>
-            <Grid container spacing={2} sx={{ mb: 4 }}>
-                {summary?.campaigns.map((campaign) => (
-                    <Grid size={{ xs: 12, md: 6 }} key={campaign.id}>
-                        <Card variant="outlined"> {/* Changed Paper to Card for consistency with original */}
-                            <CardContent> {/* Added CardContent for consistency with original */}
-                                <Typography variant="subtitle1" fontWeight="bold">{campaign.title}</Typography>
-                                <Typography variant="body2" color="text.secondary">Goal: ₹{campaign.target?.toLocaleString()} | Raised: ₹{campaign.collected?.toLocaleString()}</Typography> {/* Changed goal/raised to target/collected */}
-                                {/* Progress Bar Placeholder */}
-                                <Box sx={{ mt: 2 }}> {/* Added Box for consistency with original */}
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}> {/* Added Box for consistency with original */}
-                                        <Typography variant="caption">Collected: ₹{campaign.collected?.toLocaleString()}</Typography> {/* Added for consistency with original */}
-                                        <Typography variant="caption">{campaign.transactionCount} donations</Typography> {/* Added for consistency with original */}
+            <Typography variant="h6" fontWeight={700} sx={{ color: '#475569', mb: 2 }}>
+                Active Campaigns
+            </Typography>
+            <Grid container spacing={3} sx={{ mb: 5 }}>
+                {summary?.campaigns.map((campaign) => {
+                    const progress = Math.min((campaign.collected / (campaign.target || 1)) * 100, 100);
+                    return (
+                        <Grid item xs={12} md={6} key={campaign.id}>
+                            <Card sx={{
+                                borderRadius: '20px',
+                                border: '1px solid rgba(226, 232, 240, 0.8)',
+                                boxShadow: '0 4px 15px -5px rgba(0,0,0,0.05)',
+                                '&:hover': {
+                                    boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)',
+                                    borderColor: '#cbd5e1'
+                                },
+                                transition: 'all 0.2s'
+                            }}>
+                                <CardContent sx={{ p: 3 }}>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+                                        <Typography variant="h6" fontWeight={800} sx={{ color: '#0f172a', lineHeight: 1.2 }}>
+                                            {campaign.title}
+                                        </Typography>
+                                        <Chip label={`${campaign.transactionCount} contributions`} size="small" sx={{ bgcolor: BRAND_GRADIENT_LIGHT, color: '#E62A4D', fontWeight: 700 }} />
                                     </Box>
-                                    <LinearProgress
-                                        variant="determinate"
-                                        value={Math.min((campaign.collected / (campaign.target || 1)) * 100, 100)}
-                                        sx={{ height: 8, borderRadius: 1 }}
-                                    />
-                                </Box>
-                            </CardContent>
-                        </Card>
-                    </Grid>
-                ))}
+
+                                    <Box sx={{ bgcolor: '#f8fafc', p: 2, borderRadius: '12px', border: '1px solid #f1f5f9' }}>
+                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                                            <Typography variant="body2" sx={{ color: '#64748b', fontWeight: 600 }}>
+                                                <Box component="span" sx={{ color: '#E62A4D', fontWeight: 800, fontSize: '15px' }}>₹{campaign.collected?.toLocaleString()}</Box> collected
+                                            </Typography>
+                                            <Typography variant="body2" sx={{ color: '#64748b', fontWeight: 600 }}>
+                                                Goal: ₹{campaign.target?.toLocaleString()}
+                                            </Typography>
+                                        </Box>
+                                        <LinearProgress
+                                            variant="determinate"
+                                            value={progress}
+                                            sx={{
+                                                height: 8,
+                                                borderRadius: 4,
+                                                bgcolor: '#e2e8f0',
+                                                '& .MuiLinearProgress-bar': {
+                                                    background: BRAND_GRADIENT,
+                                                    borderRadius: 4
+                                                }
+                                            }}
+                                        />
+                                    </Box>
+                                </CardContent>
+                            </Card>
+                        </Grid>
+                    );
+                })}
             </Grid>
 
             {/* Recent Transactions Table */}
-            <Typography variant="h6" gutterBottom>Recent Transactions</Typography>
-            <TableContainer component={Paper}>
+            <Typography variant="h6" fontWeight={700} sx={{ color: '#475569', mb: 2 }}>
+                Recent Transactions
+            </Typography>
+            <TableContainer component={Paper} sx={{
+                borderRadius: '20px',
+                boxShadow: '0 4px 15px -5px rgba(0,0,0,0.05)',
+                border: '1px solid rgba(226, 232, 240, 0.8)',
+                overflow: 'hidden'
+            }}>
                 <Table>
-                    <TableHead>
+                    <TableHead sx={{ bgcolor: '#f8fafc' }}>
                         <TableRow>
-                            <TableCell>Donor</TableCell>
-                            <TableCell>Campaign</TableCell>
-                            <TableCell>Amount</TableCell>
-                            <TableCell>Date</TableCell>
-                            <TableCell>Method</TableCell>
-                            <TableCell>Status</TableCell>
+                            <TableCell sx={{ fontWeight: 700, color: '#475569', borderBottom: '2px solid #e2e8f0', py: 2 }}>Donor Name</TableCell>
+                            <TableCell sx={{ fontWeight: 700, color: '#475569', borderBottom: '2px solid #e2e8f0', py: 2 }}>Campaign</TableCell>
+                            <TableCell sx={{ fontWeight: 700, color: '#475569', borderBottom: '2px solid #e2e8f0', py: 2 }}>Date</TableCell>
+                            <TableCell sx={{ fontWeight: 700, color: '#475569', borderBottom: '2px solid #e2e8f0', py: 2 }}>Method & Status</TableCell>
+                            <TableCell align="right" sx={{ fontWeight: 700, color: '#475569', borderBottom: '2px solid #e2e8f0', py: 2 }}>Amount</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {transactions.map((tx) => (
-                            <TableRow key={tx.id}>
+                            <TableRow key={tx.id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                                 <TableCell>
-                                    <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-                                        {/* Priority: User Profile Name > Explicit Donor Name > Anonymous */}
-                                        {tx.donorUser?.profile?.fullName || tx.donorName || 'Anonymous'}
-                                    </Typography>
-                                    <Typography variant="caption" color="textSecondary">
-                                        {tx.donorUser?.profile?.email || tx.donorEmail || ''}
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                        <Avatar sx={{ bgcolor: BRAND_GRADIENT_LIGHT, color: '#E62A4D', width: 36, height: 36, fontWeight: 700 }}>
+                                            {(tx.donorUser?.profile?.fullName || tx.donorName || 'A').charAt(0).toUpperCase()}
+                                        </Avatar>
+                                        <Box>
+                                            <Typography variant="body2" fontWeight={700} sx={{ color: '#0f172a' }}>
+                                                {tx.donorUser?.profile?.fullName || tx.donorName || 'Anonymous'}
+                                            </Typography>
+                                            <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 500 }}>
+                                                {tx.donorUser?.profile?.email || tx.donorEmail || 'Hidden'}
+                                            </Typography>
+                                        </Box>
+                                    </Box>
+                                </TableCell>
+                                <TableCell>
+                                    <Typography variant="body2" fontWeight={600} sx={{ color: '#475569' }}>
+                                        {tx.donation?.title || 'General Fund'}
                                     </Typography>
                                 </TableCell>
                                 <TableCell>
-                                    <Typography variant="body2">{tx.donation?.title || 'General Fund'}</Typography>
+                                    <Typography variant="body2" sx={{ color: '#475569' }}>
+                                        {new Date(tx.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+                                    </Typography>
                                 </TableCell>
-                                <TableCell sx={{ fontWeight: 'bold' }}>₹{tx.amount.toLocaleString()}</TableCell>
-                                <TableCell>{new Date(tx.createdAt).toLocaleDateString()}</TableCell> {/* Added Date cell, using createdAt */}
-                                <TableCell>{tx.paymentMethod}</TableCell> {/* Added Method cell, assuming paymentMethod exists */}
-                                <TableCell>{tx.paymentStatus}</TableCell>
+                                <TableCell>
+                                    <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                                        <Chip label={tx.paymentMethod} size="small" variant="outlined" sx={{ fontWeight: 600, color: '#64748b', borderColor: '#cbd5e1' }} />
+                                        <Chip
+                                            label={tx.paymentStatus}
+                                            size="small"
+                                            sx={{
+                                                fontWeight: 700,
+                                                bgcolor: tx.paymentStatus === 'SUCCESS' ? '#ecfdf5' : '#fff1f2',
+                                                color: tx.paymentStatus === 'SUCCESS' ? '#10b981' : '#E62A4D',
+                                                borderRadius: '6px'
+                                            }}
+                                        />
+                                    </Box>
+                                </TableCell>
+                                <TableCell align="right">
+                                    <Typography variant="subtitle1" fontWeight={800} sx={{ color: '#10b981' }}>
+                                        +₹{tx.amount.toLocaleString()}
+                                    </Typography>
+                                </TableCell>
                             </TableRow>
                         ))}
                     </TableBody>

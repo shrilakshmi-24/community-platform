@@ -1,12 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Box, Typography, Paper, TextField, Button, GridLegacy as Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tab, Tabs, Chip, FormControl, InputLabel, Select, MenuItem, Avatar } from '@mui/material';
+import { Box, Typography, Paper, TextField, Button, GridLegacy as Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tab, Tabs, Chip, FormControl, InputLabel, Select, MenuItem, Avatar, Alert } from '@mui/material';
 import SchoolIcon from '@mui/icons-material/School';
 import client from '../../api/client';
 import { toast } from 'react-hot-toast';
 
 const BRAND_GRADIENT = 'linear-gradient(135deg, #FA8231 0%, #E62A4D 100%)';
-const BRAND_GRADIENT_LIGHT = 'linear-gradient(135deg, rgba(250, 130, 49, 0.1) 0%, rgba(230, 42, 77, 0.1) 100%)';
-const BRAND_SHADOW = '0 20px 40px -10px rgba(230, 42, 77, 0.3)';
+const BRAND_GRADIENT_LIGHT = 'linear-gradient(135deg, rgba(250, 130, 49, 0.08) 0%, rgba(230, 42, 77, 0.08) 100%)';
 
 interface Application {
     id: string;
@@ -73,7 +72,6 @@ const ScholarshipManager = () => {
             // eslint-disable-next-line react-hooks/set-state-in-effect
             fetchScholarships();
         } else {
-            // eslint-disable-next-line react-hooks/set-state-in-effect
             fetchScholarships(); // Refresh list on tab switch
         }
     }, [tabValue, fetchScholarships]);
@@ -108,37 +106,81 @@ const ScholarshipManager = () => {
         }
     };
 
+    const textFieldSx = {
+        '& .MuiOutlinedInput-root': {
+            bgcolor: '#f8fafc',
+            borderRadius: '12px',
+            '& fieldset': { borderColor: '#e2e8f0' },
+            '&:hover fieldset': { borderColor: '#cbd5e1' },
+            '&.Mui-focused fieldset': { borderColor: '#E62A4D', borderWidth: 2 }
+        }
+    };
+
+    const paperSx = {
+        p: { xs: 3, md: 4 },
+        borderRadius: '24px',
+        border: '1px solid rgba(226, 232, 240, 0.8)',
+        boxShadow: '0 4px 15px -5px rgba(0,0,0,0.05)',
+        position: 'relative',
+        overflow: 'hidden'
+    };
+
     return (
-        <Box sx={{ fontFamily: "'Inter', sans-serif" }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
-                <Avatar sx={{ background: BRAND_GRADIENT, mr: 2, width: 48, height: 48, boxShadow: BRAND_SHADOW }}>
-                    <SchoolIcon />
-                </Avatar>
-                <Typography variant="h4" fontWeight={900} sx={{ color: '#0f172a', letterSpacing: '-1px' }}>
-                    Scholarship & Aid Management
-                </Typography>
+        <Box sx={{ pb: 6 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, gap: 1.5 }}>
+                <Box sx={{ p: 1, background: BRAND_GRADIENT_LIGHT, borderRadius: '10px' }}>
+                    <SchoolIcon sx={{ color: '#E62A4D', fontSize: 28 }} />
+                </Box>
+                <Box>
+                    <Typography variant="h4" fontWeight={800} sx={{ color: '#0f172a', letterSpacing: '-0.5px' }}>
+                        Scholarship & Aid Management
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: '#64748b', fontWeight: 500 }}>
+                        Manage funding, applications, and support for students
+                    </Typography>
+                </Box>
             </Box>
 
-            <Tabs
-                value={tabValue}
-                onChange={(_, val) => setTabValue(val)}
-                sx={{
-                    mb: 4,
-                    borderBottom: 1,
-                    borderColor: 'divider',
-                    '& .MuiTab-root': { fontWeight: 700, textTransform: 'none', fontSize: '1rem', color: '#64748b' },
-                    '& .Mui-selected': { color: '#E62A4D !important' },
-                    '& .MuiTabs-indicator': { background: BRAND_GRADIENT }
-                }}
-            >
-                <Tab label="Create & Manage" />
-                <Tab label="Review Applications" />
-            </Tabs>
+            <Box sx={{
+                borderBottom: 1,
+                borderColor: 'divider',
+                mb: 4,
+                bgcolor: 'white',
+                borderRadius: '16px 16px 0 0',
+                px: 2,
+                pt: 1
+            }}>
+                <Tabs
+                    value={tabValue}
+                    onChange={(_, val) => setTabValue(val)}
+                    sx={{
+                        '& .MuiTabs-indicator': {
+                            background: BRAND_GRADIENT,
+                            height: 3,
+                            borderRadius: '3px 3px 0 0'
+                        },
+                        '& .MuiTab-root': {
+                            fontWeight: 700,
+                            textTransform: 'none',
+                            fontSize: '1rem',
+                            color: '#64748b',
+                            minWidth: 120,
+                            '&.Mui-selected': {
+                                color: '#E62A4D'
+                            }
+                        }
+                    }}
+                >
+                    <Tab label="Create & Manage" />
+                    <Tab label="Review Applications" />
+                </Tabs>
+            </Box>
 
             {tabValue === 0 && (
                 <Grid container spacing={4}>
                     <Grid item xs={12} md={5}>
-                        <Paper sx={{ p: 4, borderRadius: '20px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', border: '1px solid #f1f5f9' }}>
+                        <Paper sx={{ ...paperSx }}>
+                            <Box sx={{ position: 'absolute', top: 0, left: 0, width: '4px', height: '100%', background: BRAND_GRADIENT }} />
                             <Typography variant="h6" fontWeight={800} gutterBottom sx={{ color: '#1e293b', mb: 3 }}>
                                 Create New Scholarship
                             </Typography>
@@ -148,7 +190,7 @@ const ScholarshipManager = () => {
                                     fullWidth
                                     value={newScholarship.title}
                                     onChange={(e) => setNewScholarship({ ...newScholarship, title: e.target.value })}
-                                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
+                                    sx={textFieldSx}
                                 />
                                 <TextField
                                     label="Amount (₹)"
@@ -156,15 +198,15 @@ const ScholarshipManager = () => {
                                     fullWidth
                                     value={newScholarship.amount}
                                     onChange={(e) => setNewScholarship({ ...newScholarship, amount: e.target.value })}
-                                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
+                                    sx={textFieldSx}
                                 />
-                                <FormControl fullWidth>
-                                    <InputLabel>Education Level</InputLabel>
+                                <FormControl fullWidth sx={textFieldSx}>
+                                    <InputLabel sx={{ fontWeight: 600 }}>Education Level</InputLabel>
                                     <Select
                                         value={newScholarship.educationLevel}
                                         label="Education Level"
                                         onChange={(e) => setNewScholarship({ ...newScholarship, educationLevel: e.target.value })}
-                                        sx={{ borderRadius: '12px' }}
+                                        sx={{ '& .MuiOutlinedInput-notchedOutline': { borderColor: '#e2e8f0' } }}
                                     >
                                         <MenuItem value="High School">High School</MenuItem>
                                         <MenuItem value="Undergraduate">Undergraduate</MenuItem>
@@ -180,7 +222,7 @@ const ScholarshipManager = () => {
                                     InputLabelProps={{ shrink: true }}
                                     value={newScholarship.deadline}
                                     onChange={(e) => setNewScholarship({ ...newScholarship, deadline: e.target.value })}
-                                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
+                                    sx={textFieldSx}
                                 />
                                 <TextField
                                     label="Description"
@@ -189,17 +231,18 @@ const ScholarshipManager = () => {
                                     fullWidth
                                     value={newScholarship.description}
                                     onChange={(e) => setNewScholarship({ ...newScholarship, description: e.target.value })}
-                                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
+                                    sx={textFieldSx}
                                 />
                                 <Button
                                     variant="contained"
                                     onClick={handleCreate}
                                     sx={{
-                                        mt: 2, py: 1.5, borderRadius: '12px',
+                                        mt: 1, py: 1.5, borderRadius: '12px',
                                         background: BRAND_GRADIENT,
-                                        boxShadow: BRAND_SHADOW,
+                                        boxShadow: '0 8px 20px -6px rgba(230,42,77,0.4)',
                                         fontWeight: 800, textTransform: 'none', fontSize: '1rem',
-                                        '&:hover': { transform: 'translateY(-2px)' }
+                                        '&:hover': { transform: 'translateY(-2px)', boxShadow: '0 12px 25px -6px rgba(230,42,77,0.5)' },
+                                        transition: 'all 0.2s'
                                     }}
                                 >
                                     Publish Scholarship
@@ -209,50 +252,61 @@ const ScholarshipManager = () => {
                     </Grid>
 
                     <Grid item xs={12} md={7}>
-                        <Paper sx={{ p: 4, borderRadius: '20px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', border: '1px solid #f1f5f9' }}>
-                            <Typography variant="h6" fontWeight={800} gutterBottom sx={{ color: '#1e293b', mb: 3 }}>
-                                Active Scholarships
-                            </Typography>
+                        <Paper sx={{ ...paperSx, p: 0 }}>
+                            <Box sx={{ p: { xs: 3, md: 4 }, pb: 2 }}>
+                                <Typography variant="h6" fontWeight={800} gutterBottom sx={{ color: '#1e293b' }}>
+                                    Active Scholarships
+                                </Typography>
+                            </Box>
                             <TableContainer>
                                 <Table>
                                     <TableHead>
                                         <TableRow sx={{ bgcolor: '#f8fafc' }}>
-                                            <TableCell sx={{ fontWeight: 800, color: '#475569' }}>Title</TableCell>
-                                            <TableCell sx={{ fontWeight: 800, color: '#475569' }}>Amount</TableCell>
-                                            <TableCell sx={{ fontWeight: 800, color: '#475569' }}>Deadline</TableCell>
-                                            <TableCell sx={{ fontWeight: 800, color: '#475569' }}>Level</TableCell>
-                                            <TableCell sx={{ fontWeight: 800, color: '#475569' }}>Actions</TableCell>
+                                            <TableCell sx={{ fontWeight: 700, color: '#475569', borderBottom: '2px solid #e2e8f0' }}>Title</TableCell>
+                                            <TableCell sx={{ fontWeight: 700, color: '#475569', borderBottom: '2px solid #e2e8f0' }}>Amount</TableCell>
+                                            <TableCell sx={{ fontWeight: 700, color: '#475569', borderBottom: '2px solid #e2e8f0' }}>Deadline</TableCell>
+                                            <TableCell sx={{ fontWeight: 700, color: '#475569', borderBottom: '2px solid #e2e8f0' }}>Level</TableCell>
+                                            <TableCell align="right" sx={{ fontWeight: 700, color: '#475569', borderBottom: '2px solid #e2e8f0' }}>Actions</TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {scholarships.map((s) => (
-                                            <TableRow key={s.id} hover>
-                                                <TableCell sx={{ fontWeight: 600, color: '#1e293b' }}>{s.title}</TableCell>
-                                                <TableCell sx={{ fontWeight: 700, color: '#10b981' }}>₹{s.amount.toLocaleString()}</TableCell>
-                                                <TableCell sx={{ color: '#64748b' }}>{new Date(s.deadline).toLocaleDateString()}</TableCell>
-                                                <TableCell>
-                                                    <Chip label={s.educationLevel} size="small" sx={{ background: BRAND_GRADIENT_LIGHT, color: '#E62A4D', fontWeight: 700 }} />
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Button
-                                                        size="small"
-                                                        variant="outlined"
-                                                        onClick={() => {
-                                                            setSelectedScholarshipId(s.id);
-                                                            setTabValue(1);
-                                                        }}
-                                                        sx={{
-                                                            borderRadius: '8px',
-                                                            borderColor: '#FA8231', color: '#FA8231',
-                                                            textTransform: 'none', fontWeight: 700,
-                                                            '&:hover': { background: 'rgba(250, 130, 49, 0.05)', borderColor: '#FA8231' }
-                                                        }}
-                                                    >
-                                                        Applicants
-                                                    </Button>
+                                        {scholarships.length === 0 ? (
+                                            <TableRow>
+                                                <TableCell colSpan={5} align="center" sx={{ py: 6, color: '#94a3b8' }}>
+                                                    <SchoolIcon sx={{ fontSize: 48, color: '#e2e8f0', mb: 1 }} />
+                                                    <Typography variant="body1" fontWeight={600} sx={{ color: '#64748b' }}>No active scholarships</Typography>
                                                 </TableCell>
                                             </TableRow>
-                                        ))}
+                                        ) : (
+                                            scholarships.map((s) => (
+                                                <TableRow key={s.id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                                                    <TableCell sx={{ fontWeight: 700, color: '#1e293b' }}>{s.title}</TableCell>
+                                                    <TableCell sx={{ fontWeight: 800, color: '#10b981' }}>₹{s.amount.toLocaleString()}</TableCell>
+                                                    <TableCell sx={{ color: '#64748b', fontWeight: 500 }}>{new Date(s.deadline).toLocaleDateString()}</TableCell>
+                                                    <TableCell>
+                                                        <Chip label={s.educationLevel} size="small" sx={{ bgcolor: BRAND_GRADIENT_LIGHT, color: '#E62A4D', fontWeight: 700, borderRadius: '6px' }} />
+                                                    </TableCell>
+                                                    <TableCell align="right">
+                                                        <Button
+                                                            size="small"
+                                                            variant="outlined"
+                                                            onClick={() => {
+                                                                setSelectedScholarshipId(s.id);
+                                                                setTabValue(1);
+                                                            }}
+                                                            sx={{
+                                                                borderRadius: '8px',
+                                                                borderColor: '#e2e8f0', color: '#E62A4D',
+                                                                textTransform: 'none', fontWeight: 700,
+                                                                '&:hover': { bgcolor: BRAND_GRADIENT_LIGHT, borderColor: '#FA8231' }
+                                                            }}
+                                                        >
+                                                            Applicants
+                                                        </Button>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))
+                                        )}
                                     </TableBody>
                                 </Table>
                             </TableContainer>
@@ -264,69 +318,84 @@ const ScholarshipManager = () => {
             {tabValue === 1 && (
                 <Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 4, flexWrap: 'wrap', gap: 2 }}>
-                        <FormControl sx={{ minWidth: 300 }}>
-                            <InputLabel>Select Scholarship</InputLabel>
+                        <FormControl sx={{ minWidth: 300, bgcolor: 'white', borderRadius: '12px' }}>
+                            <InputLabel sx={{ fontWeight: 600 }}>Select Scholarship</InputLabel>
                             <Select
                                 value={selectedScholarshipId}
                                 label="Select Scholarship"
                                 onChange={(e) => setSelectedScholarshipId(e.target.value)}
-                                sx={{ borderRadius: '12px', bgcolor: 'white' }}
+                                sx={{
+                                    borderRadius: '12px',
+                                    '& .MuiOutlinedInput-notchedOutline': { borderColor: '#e2e8f0' }
+                                }}
                             >
                                 {scholarships.map((s) => (
-                                    <MenuItem key={s.id} value={s.id}>{s.title}</MenuItem>
+                                    <MenuItem key={s.id} value={s.id} sx={{ fontWeight: 600 }}>{s.title}</MenuItem>
                                 ))}
                             </Select>
                         </FormControl>
                         <Chip
                             label={`${applications.length} Applications Total`}
-                            sx={{ fontWeight: 800, background: '#f1f5f9', color: '#475569', fontSize: '1rem', py: 2.5, px: 1, borderRadius: '12px' }}
+                            sx={{ fontWeight: 800, bgcolor: 'white', color: '#E62A4D', border: '1px solid #e2e8f0', fontSize: '0.95rem', py: 2.5, px: 2, borderRadius: '12px', boxShadow: '0 4px 10px rgba(0,0,0,0.03)' }}
                         />
                     </Box>
 
-                    <Paper sx={{ borderRadius: '20px', overflow: 'hidden', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', border: '1px solid #f1f5f9' }}>
+                    <Paper sx={{ ...paperSx, p: 0 }}>
                         <TableContainer>
                             <Table>
-                                <TableHead>
-                                    <TableRow sx={{ bgcolor: '#f8fafc' }}>
-                                        <TableCell sx={{ fontWeight: 800, color: '#475569' }}>Applicant</TableCell>
-                                        <TableCell sx={{ fontWeight: 800, color: '#475569' }}>Education Level</TableCell>
-                                        <TableCell sx={{ fontWeight: 800, color: '#475569' }}>Mobile Number</TableCell>
-                                        <TableCell sx={{ fontWeight: 800, color: '#475569' }}>Status</TableCell>
-                                        <TableCell sx={{ fontWeight: 800, color: '#475569' }}>Actions</TableCell>
+                                <TableHead sx={{ bgcolor: '#f8fafc' }}>
+                                    <TableRow>
+                                        <TableCell sx={{ fontWeight: 700, color: '#475569', borderBottom: '2px solid #e2e8f0', py: 2 }}>Applicant</TableCell>
+                                        <TableCell sx={{ fontWeight: 700, color: '#475569', borderBottom: '2px solid #e2e8f0', py: 2 }}>Education Level</TableCell>
+                                        <TableCell sx={{ fontWeight: 700, color: '#475569', borderBottom: '2px solid #e2e8f0', py: 2 }}>Mobile Number</TableCell>
+                                        <TableCell sx={{ fontWeight: 700, color: '#475569', borderBottom: '2px solid #e2e8f0', py: 2 }}>Status</TableCell>
+                                        <TableCell align="right" sx={{ fontWeight: 700, color: '#475569', borderBottom: '2px solid #e2e8f0', py: 2 }}>Actions</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
                                     {applications.length === 0 ? (
                                         <TableRow>
-                                            <TableCell colSpan={5} align="center" sx={{ py: 6, color: '#94a3b8' }}>
-                                                <Typography variant="h6" fontWeight={600}>No Applications Yet</Typography>
-                                                <Typography variant="body2">Applications for this scholarship will appear here.</Typography>
+                                            <TableCell colSpan={5} align="center" sx={{ py: 8 }}>
+                                                <Alert icon={false} severity="info" sx={{ width: 'fit-content', mx: 'auto', borderRadius: '12px', fontWeight: 600 }}>
+                                                    No applications available for this scholarship yet.
+                                                </Alert>
                                             </TableCell>
                                         </TableRow>
                                     ) : (
                                         applications.map((app) => (
-                                            <TableRow key={app.id} hover>
+                                            <TableRow key={app.id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                                                 <TableCell>
-                                                    <Typography variant="subtitle2" fontWeight={700} sx={{ color: '#1e293b' }}>{app.applicant?.fullName || 'N/A'}</Typography>
-                                                    <Typography variant="caption" sx={{ color: '#64748b' }}>{app.applicant?.email}</Typography>
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                                        <Avatar sx={{ bgcolor: BRAND_GRADIENT_LIGHT, color: '#E62A4D', width: 36, height: 36, fontWeight: 700 }}>
+                                                            {(app.applicant?.fullName || 'N').charAt(0).toUpperCase()}
+                                                        </Avatar>
+                                                        <Box>
+                                                            <Typography variant="body2" fontWeight={700} sx={{ color: '#0f172a' }}>{app.applicant?.fullName || 'N/A'}</Typography>
+                                                            <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 500 }}>{app.applicant?.email}</Typography>
+                                                        </Box>
+                                                    </Box>
                                                 </TableCell>
-                                                <TableCell sx={{ color: '#475569', fontWeight: 500 }}>{(app.educationLevel as string) || 'N/A'}</TableCell>
-                                                <TableCell sx={{ color: '#475569', fontWeight: 500 }}>{(app.applicant?.mobileNumber as string) || 'N/A'}</TableCell>
+                                                <TableCell sx={{ color: '#475569', fontWeight: 600 }}>{(app.educationLevel as string) || 'N/A'}</TableCell>
+                                                <TableCell>
+                                                    <Typography variant="body2" sx={{ color: '#475569', fontWeight: 600, fontFamily: 'monospace', letterSpacing: '0.5px' }}>
+                                                        {(app.applicant?.mobileNumber as string) || 'N/A'}
+                                                    </Typography>
+                                                </TableCell>
                                                 <TableCell>
                                                     <Chip
                                                         label={app.status}
                                                         sx={{
                                                             fontWeight: 800,
-                                                            bgcolor: app.status === 'APPROVED' ? 'rgba(16, 185, 129, 0.1)' : app.status === 'REJECTED' ? 'rgba(2ef, 68, 68, 0.1)' : 'rgba(245, 158, 11, 0.1)',
+                                                            bgcolor: app.status === 'APPROVED' ? '#ecfdf5' : app.status === 'REJECTED' ? '#fef2f2' : '#fffbeb',
                                                             color: app.status === 'APPROVED' ? '#10b981' : app.status === 'REJECTED' ? '#ef4444' : '#f59e0b',
-                                                            border: 'none'
+                                                            borderRadius: '6px'
                                                         }}
                                                         size="small"
                                                     />
                                                 </TableCell>
-                                                <TableCell>
+                                                <TableCell align="right">
                                                     {app.status === 'PENDING' ? (
-                                                        <Box sx={{ display: 'flex', gap: 1 }}>
+                                                        <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
                                                             <Button
                                                                 size="small"
                                                                 variant="contained"
@@ -337,15 +406,15 @@ const ScholarshipManager = () => {
                                                             </Button>
                                                             <Button
                                                                 size="small"
-                                                                variant="contained"
+                                                                variant="outlined"
                                                                 onClick={() => handleStatusUpdate(app.id, 'REJECTED')}
-                                                                sx={{ bgcolor: '#ef4444', color: 'white', '&:hover': { bgcolor: '#dc2626' }, textTransform: 'none', fontWeight: 700, borderRadius: '8px', boxShadow: 'none' }}
+                                                                sx={{ borderColor: '#fca5a5', color: '#ef4444', '&:hover': { bgcolor: '#fef2f2', borderColor: '#ef4444' }, textTransform: 'none', fontWeight: 700, borderRadius: '8px' }}
                                                             >
                                                                 Reject
                                                             </Button>
                                                         </Box>
                                                     ) : (
-                                                        <Typography variant="caption" sx={{ color: '#94a3b8', fontStyle: 'italic', fontWeight: 500 }}>Decision Final</Typography>
+                                                        <Typography variant="caption" sx={{ color: '#94a3b8', fontStyle: 'italic', fontWeight: 600 }}>Decision Final</Typography>
                                                     )}
                                                 </TableCell>
                                             </TableRow>
