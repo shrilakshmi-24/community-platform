@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Box, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, LinearProgress, Card, CardContent, Chip, Avatar, GridLegacy as Grid } from '@mui/material';
+import { Box, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, LinearProgress, Card, CardContent, Chip, Avatar, Grid } from '@mui/material';
 import client from '../../api/client';
 import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
@@ -83,7 +83,7 @@ const DonationManager = () => {
 
             {summary && (
                 <Grid container spacing={3} sx={{ mb: 5 }}>
-                    <Grid item xs={12} md={4}>
+                    <Grid size={{ xs: 12, md: 4 }}>
                         <Paper sx={{
                             p: 3,
                             borderRadius: '20px',
@@ -109,7 +109,7 @@ const DonationManager = () => {
                             </Box>
                         </Paper>
                     </Grid>
-                    <Grid item xs={12} md={4}>
+                    <Grid size={{ xs: 12, md: 4 }}>
                         <Paper sx={{
                             p: 3,
                             borderRadius: '20px',
@@ -135,7 +135,7 @@ const DonationManager = () => {
                             </Box>
                         </Paper>
                     </Grid>
-                    <Grid item xs={12} md={4}>
+                    <Grid size={{ xs: 12, md: 4 }}>
                         <Paper sx={{
                             p: 3,
                             borderRadius: '20px',
@@ -172,7 +172,7 @@ const DonationManager = () => {
                 {summary?.campaigns.map((campaign) => {
                     const progress = Math.min((campaign.collected / (campaign.target || 1)) * 100, 100);
                     return (
-                        <Grid item xs={12} md={6} key={campaign.id}>
+                        <Grid size={{ xs: 12, md: 6 }} key={campaign.id}>
                             <Card sx={{
                                 borderRadius: '20px',
                                 border: '1px solid rgba(226, 232, 240, 0.8)',

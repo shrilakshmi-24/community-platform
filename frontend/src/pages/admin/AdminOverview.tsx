@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { GridLegacy as Grid, Paper, Typography, Box, CircularProgress, Alert, IconButton } from '@mui/material';
+import { Grid, Paper, Typography, Box, CircularProgress, Alert, IconButton } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import client from '../../api/client';
 import PeopleIcon from '@mui/icons-material/People';
@@ -122,7 +122,7 @@ const AdminOverview = () => {
                 User Management
             </Typography>
             <Grid container spacing={3} sx={{ mb: 5 }}>
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                     <StatCard
                         title="Total Users"
                         value={stats.users.total}
@@ -130,7 +130,7 @@ const AdminOverview = () => {
                         onClick={() => navigate('/admin/users')}
                     />
                 </Grid>
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                     <StatCard
                         title="Pending Approvals"
                         value={stats.users.pending}
@@ -144,7 +144,7 @@ const AdminOverview = () => {
                 Content Moderation
             </Typography>
             <Grid container spacing={3}>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                     <StatCard
                         title="Pending Business"
                         value={stats.content.business}
@@ -152,7 +152,7 @@ const AdminOverview = () => {
                         onClick={() => navigate('/admin/moderation')}
                     />
                 </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                     <StatCard
                         title="Pending Career"
                         value={stats.content.career}
@@ -160,7 +160,7 @@ const AdminOverview = () => {
                         onClick={() => navigate('/admin/moderation')}
                     />
                 </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                     <StatCard
                         title="Pending Events"
                         value={stats.content.events}
@@ -168,7 +168,7 @@ const AdminOverview = () => {
                         onClick={() => navigate('/admin/moderation')}
                     />
                 </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                     <StatCard
                         title="Pending Services"
                         value={stats.content.services}

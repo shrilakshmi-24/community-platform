@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import client from '../../api/client';
 import {
-    Box, Typography, Button, TextField, Paper, GridLegacy as Grid,
+    Box, Typography, Button, TextField, Paper, Grid,
     FormControl, InputLabel, Select, MenuItem, Chip,
     Stack, CircularProgress
 } from '@mui/material';
@@ -140,7 +140,7 @@ const NewsletterEditor = () => {
             </Box>
 
             <Grid container spacing={4}>
-                <Grid item xs={12} md={8}>
+                <Grid size={{ xs: 12, md: 8 }}>
                     <Paper sx={{ ...paperSx, p: { xs: 3, md: 4 } }}>
                         <Box sx={{ position: 'absolute', top: 0, left: 0, width: '4px', height: '100%', background: BRAND_GRADIENT }} />
                         <Typography variant="h6" fontWeight={700} sx={{ color: '#1e293b', mb: 3 }}>
@@ -168,7 +168,7 @@ const NewsletterEditor = () => {
                     </Paper>
                 </Grid>
 
-                <Grid item xs={12} md={4}>
+                <Grid size={{ xs: 12, md: 4 }}>
                     <Stack spacing={4}>
                         <Paper sx={{ ...paperSx, p: 3 }}>
                             <Box sx={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '4px', background: BRAND_GRADIENT }} />

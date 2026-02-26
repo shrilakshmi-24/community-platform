@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Box, Typography, Paper, TextField, Button, GridLegacy as Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tab, Tabs, Chip, FormControl, InputLabel, Select, MenuItem, Avatar, Alert } from '@mui/material';
+import { Box, Typography, Paper, TextField, Button, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tab, Tabs, Chip, FormControl, InputLabel, Select, MenuItem, Avatar, Alert } from '@mui/material';
 import SchoolIcon from '@mui/icons-material/School';
 import client from '../../api/client';
 import { toast } from 'react-hot-toast';
@@ -178,7 +178,7 @@ const ScholarshipManager = () => {
 
             {tabValue === 0 && (
                 <Grid container spacing={4}>
-                    <Grid item xs={12} md={5}>
+                    <Grid size={{ xs: 12, md: 5 }}>
                         <Paper sx={{ ...paperSx }}>
                             <Box sx={{ position: 'absolute', top: 0, left: 0, width: '4px', height: '100%', background: BRAND_GRADIENT }} />
                             <Typography variant="h6" fontWeight={800} gutterBottom sx={{ color: '#1e293b', mb: 3 }}>
@@ -251,7 +251,7 @@ const ScholarshipManager = () => {
                         </Paper>
                     </Grid>
 
-                    <Grid item xs={12} md={7}>
+                    <Grid size={{ xs: 12, md: 7 }}>
                         <Paper sx={{ ...paperSx, p: 0 }}>
                             <Box sx={{ p: { xs: 3, md: 4 }, pb: 2 }}>
                                 <Typography variant="h6" fontWeight={800} gutterBottom sx={{ color: '#1e293b' }}>

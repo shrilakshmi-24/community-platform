@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Box, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, GridLegacy as Grid, CircularProgress, Avatar, LinearProgress } from '@mui/material';
+import { Box, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Grid, CircularProgress, Avatar, LinearProgress } from '@mui/material';
 import client from '../../api/client';
 import InsightsIcon from '@mui/icons-material/Insights';
 import PublicIcon from '@mui/icons-material/Public';
@@ -73,7 +73,7 @@ const AdminReports = () => {
             </Box>
 
             <Grid container spacing={4} sx={{ mb: 4 }}>
-                <Grid item xs={12} md={4}>
+                <Grid size={{ xs: 12, md: 4 }}>
                     <Paper sx={{ ...paperSx, p: 3 }}>
                         <Box sx={{ position: 'absolute', top: 0, left: 0, width: '4px', height: '100%', background: BRAND_GRADIENT }} />
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
@@ -87,7 +87,7 @@ const AdminReports = () => {
                         </Box>
                     </Paper>
                 </Grid>
-                <Grid item xs={12} md={4}>
+                <Grid size={{ xs: 12, md: 4 }}>
                     <Paper sx={{ ...paperSx, p: 3 }}>
                         <Box sx={{ position: 'absolute', top: 0, left: 0, width: '4px', height: '100%', background: BRAND_GRADIENT }} />
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
@@ -101,7 +101,7 @@ const AdminReports = () => {
                         </Box>
                     </Paper>
                 </Grid>
-                <Grid item xs={12} md={4}>
+                <Grid size={{ xs: 12, md: 4 }}>
                     <Paper sx={{ ...paperSx, p: 3 }}>
                         <Box sx={{ position: 'absolute', top: 0, left: 0, width: '4px', height: '100%', background: BRAND_GRADIENT }} />
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
@@ -118,7 +118,7 @@ const AdminReports = () => {
             </Grid>
 
             <Grid container spacing={4}>
-                <Grid item xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                     <Paper sx={{ ...paperSx, p: 0 }}>
                         <Box sx={{ p: 3, borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: 1.5 }}>
                             <PublicIcon sx={{ color: '#FA8231' }} />
@@ -169,7 +169,7 @@ const AdminReports = () => {
                     </Paper>
                 </Grid>
 
-                <Grid item xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                     <Paper sx={{ ...paperSx, p: 0, display: 'flex', flexDirection: 'column' }}>
                         <Box sx={{ p: 3, borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: 1.5 }}>
                             <CampaignIcon sx={{ color: '#E62A4D' }} />

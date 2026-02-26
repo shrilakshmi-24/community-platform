@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import {
-    Box, Typography, Paper, GridLegacy as Grid, Chip, Button,
+    Box, Typography, Paper, Grid, Chip, Button,
     FormControl, Select, MenuItem, InputLabel, TextField,
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
     Checkbox, IconButton, Dialog, DialogTitle, DialogContent, DialogActions,
@@ -190,25 +190,25 @@ const AdminHelpDesk = () => {
             {/* Stats Cards */}
             {stats && (
                 <Grid container spacing={3} sx={{ mb: 4 }}>
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                         <Paper sx={{ p: 3, borderRadius: '20px', border: '1px solid #bfdbfe', bgcolor: '#eff6ff', boxShadow: 'none' }}>
                             <Typography variant="h3" fontWeight={800} sx={{ color: '#2563eb', lineHeight: 1, mb: 0.5 }}>{stats.summary.open}</Typography>
                             <Typography variant="subtitle2" fontWeight={700} sx={{ color: '#3b82f6', textTransform: 'uppercase' }}>Open Tickets</Typography>
                         </Paper>
                     </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                         <Paper sx={{ p: 3, borderRadius: '20px', border: '1px solid #fecaca', bgcolor: '#fef2f2', boxShadow: 'none' }}>
                             <Typography variant="h3" fontWeight={800} sx={{ color: '#dc2626', lineHeight: 1, mb: 0.5 }}>{stats.summary.urgent}</Typography>
                             <Typography variant="subtitle2" fontWeight={700} sx={{ color: '#ef4444', textTransform: 'uppercase' }}>Urgent Attention</Typography>
                         </Paper>
                     </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                         <Paper sx={{ p: 3, borderRadius: '20px', border: '1px solid #bbf7d0', bgcolor: '#f0fdf4', boxShadow: 'none' }}>
                             <Typography variant="h3" fontWeight={800} sx={{ color: '#16a34a', lineHeight: 1, mb: 0.5 }}>{stats.summary.resolved}</Typography>
                             <Typography variant="subtitle2" fontWeight={700} sx={{ color: '#22c55e', textTransform: 'uppercase' }}>Resolved</Typography>
                         </Paper>
                     </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                         <Paper sx={{ p: 3, borderRadius: '20px', border: '1px solid #e2e8f0', bgcolor: '#f8fafc', boxShadow: 'none' }}>
                             <Typography variant="h3" fontWeight={800} sx={{ color: '#475569', lineHeight: 1, mb: 0.5 }}>{stats.summary.total}</Typography>
                             <Typography variant="subtitle2" fontWeight={700} sx={{ color: '#64748b', textTransform: 'uppercase' }}>Total Requests</Typography>
@@ -220,7 +220,7 @@ const AdminHelpDesk = () => {
             {/* Filters & Actions */}
             <Paper sx={{ p: 3, mb: 4, borderRadius: '20px', boxShadow: '0 4px 15px -5px rgba(0,0,0,0.05)', border: '1px solid rgba(226, 232, 240, 0.8)' }}>
                 <Grid container spacing={2} alignItems="center">
-                    <Grid item xs={12} md={3}>
+                    <Grid size={{ xs: 12, md: 3 }}>
                         <TextField
                             fullWidth
                             size="small"
@@ -230,7 +230,7 @@ const AdminHelpDesk = () => {
                             sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px', bgcolor: '#f8fafc' } }}
                         />
                     </Grid>
-                    <Grid item xs={6} md={2}>
+                    <Grid size={{ xs: 6, md: 2 }}>
                         <FormControl fullWidth size="small">
                             <InputLabel sx={{ fontWeight: 600 }}>Status</InputLabel>
                             <Select
@@ -247,7 +247,7 @@ const AdminHelpDesk = () => {
                             </Select>
                         </FormControl>
                     </Grid>
-                    <Grid item xs={6} md={2}>
+                    <Grid size={{ xs: 6, md: 2 }}>
                         <FormControl fullWidth size="small">
                             <InputLabel sx={{ fontWeight: 600 }}>Priority</InputLabel>
                             <Select
@@ -264,7 +264,7 @@ const AdminHelpDesk = () => {
                             </Select>
                         </FormControl>
                     </Grid>
-                    <Grid item xs={12} md={5} sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end', alignItems: 'center' }}>
+                    <Grid size={{ xs: 12, md: 5 }} sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end', alignItems: 'center' }}>
                         {selectedIds.length > 0 && (
                             <Box sx={{ display: 'flex', gap: 1, bgcolor: '#f8fafc', p: 0.5, borderRadius: '12px', border: '1px solid #e2e8f0' }}>
                                 <Button variant="text" size="small" onClick={() => handleBulkUpdate('IN_PROGRESS')} sx={{ fontWeight: 700, borderRadius: '8px', color: '#f59e0b' }}>
@@ -461,13 +461,13 @@ const AdminHelpDesk = () => {
                             <Typography variant="h5" fontWeight={800} sx={{ color: '#1e293b', mb: 3 }}>{viewingRequest.title}</Typography>
 
                             <Grid container spacing={3} sx={{ mb: 2 }}>
-                                <Grid item xs={6}>
+                                <Grid size={{ xs: 6 }}>
                                     <Box sx={{ p: 2, bgcolor: '#f8fafc', borderRadius: '12px', border: '1px solid #f1f5f9' }}>
                                         <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Created At</Typography>
                                         <Typography variant="body1" fontWeight={700} sx={{ color: '#0f172a' }}>{new Date(viewingRequest.createdAt).toLocaleString()}</Typography>
                                     </Box>
                                 </Grid>
-                                <Grid item xs={6}>
+                                <Grid size={{ xs: 6 }}>
                                     <Box sx={{ p: 2, bgcolor: '#f8fafc', borderRadius: '12px', border: '1px solid #f1f5f9' }}>
                                         <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Requester</Typography>
                                         <Typography variant="body1" fontWeight={700} sx={{ color: '#0f172a' }}>
@@ -478,13 +478,13 @@ const AdminHelpDesk = () => {
                                         )}
                                     </Box>
                                 </Grid>
-                                <Grid item xs={6}>
+                                <Grid size={{ xs: 6 }}>
                                     <Box sx={{ p: 2, bgcolor: '#f8fafc', borderRadius: '12px', border: '1px solid #f1f5f9' }}>
                                         <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', mb: 0.5, display: 'block' }}>Status</Typography>
                                         <Chip label={viewingRequest.status} size="small" sx={{ fontWeight: 800, color: getStatusColor(viewingRequest.status), bgcolor: getStatusBg(viewingRequest.status), borderRadius: '6px' }} />
                                     </Box>
                                 </Grid>
-                                <Grid item xs={6}>
+                                <Grid size={{ xs: 6 }}>
                                     <Box sx={{ p: 2, bgcolor: '#f8fafc', borderRadius: '12px', border: '1px solid #f1f5f9' }}>
                                         <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', mb: 0.5, display: 'block' }}>Priority & Category</Typography>
                                         <Box display="flex" gap={1}>
