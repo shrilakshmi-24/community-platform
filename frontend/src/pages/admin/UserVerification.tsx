@@ -17,11 +17,14 @@ interface UserProfile {
     email: string;
     city: string;
     state: string;
-    submittedAt: string;
+    avatarUrl?: string;
+    submittedAt: string | null;
 }
 
 interface Member {
     id: string;
+    mobileNumber: string;
+    createdAt: string;
     profile?: UserProfile;
 }
 
@@ -251,16 +254,24 @@ const UserVerification = () => {
                                             </TableCell>
                                             <TableCell>
                                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                                    <Avatar sx={{ bgcolor: BRAND_GRADIENT_LIGHT, color: '#E62A4D', fontWeight: 700 }}>
-                                                        {(member.profile?.fullName || 'N').charAt(0).toUpperCase()}
+                                                    <Avatar
+                                                        src={member.profile?.avatarUrl}
+                                                        sx={{ bgcolor: BRAND_GRADIENT_LIGHT, color: '#E62A4D', fontWeight: 700, width: 42, height: 42 }}
+                                                    >
+                                                        {(member.profile?.fullName || member.mobileNumber || 'N').charAt(0).toUpperCase()}
                                                     </Avatar>
                                                     <Box>
                                                         <Typography variant="subtitle2" fontWeight={700} sx={{ color: '#0f172a' }}>
                                                             {member.profile?.fullName || 'No Name Provided'}
                                                         </Typography>
-                                                        <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 500 }}>
-                                                            {member.profile?.email || 'No email'}
+                                                        <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 500, display: 'block' }}>
+                                                            📱 {member.mobileNumber}
                                                         </Typography>
+                                                        {member.profile?.email && (
+                                                            <Typography variant="caption" sx={{ color: '#94a3b8', fontWeight: 500, display: 'block' }}>
+                                                                ✉️ {member.profile.email}
+                                                            </Typography>
+                                                        )}
                                                     </Box>
                                                 </Box>
                                             </TableCell>
@@ -271,7 +282,12 @@ const UserVerification = () => {
                                             </TableCell>
                                             <TableCell>
                                                 <Typography variant="body2" sx={{ color: '#64748b' }}>
-                                                    {member.profile?.submittedAt ? new Date(member.profile.submittedAt).toLocaleDateString() : 'Unknown'}
+                                                    {member.profile?.submittedAt
+                                                        ? new Date(member.profile.submittedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+                                                        : new Date(member.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                                </Typography>
+                                                <Typography variant="caption" sx={{ color: '#94a3b8' }}>
+                                                    {new Date(member.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
                                                 </Typography>
                                             </TableCell>
                                             <TableCell align="right">

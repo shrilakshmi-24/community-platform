@@ -28,7 +28,6 @@ import ApplyScholarship from './pages/scholarships/ApplyScholarship';
 import BusinessCollaborationPage from './pages/BusinessCollaborationPage';
 import EventDetailsPage from './pages/EventDetailsPage';
 import NewsletterPage from './pages/NewsletterPage';
-import NewsletterEditor from './pages/admin/NewsletterEditor';
 
 // Admin Pages
 import AdminLayout from './layouts/AdminLayout';
@@ -40,6 +39,8 @@ import DonationManager from './pages/admin/DonationManager';
 import AdminReports from './pages/admin/AdminReports';
 import ScholarshipManager from './pages/admin/ScholarshipManager';
 import AdminContentCreation from './pages/admin/AdminContentCreation';
+import NewsletterEditor from './pages/admin/NewsletterEditor';
+import AdminHelpDesk from './pages/admin/AdminHelpDesk';
 
 // Profile section pages
 import AboutMe from './pages/profile/AboutMe';
@@ -50,68 +51,80 @@ import Business from './pages/profile/Business';
 import HelpRequestForm from './pages/help/HelpRequestForm';
 import HelpRequestList from './pages/help/HelpRequestList';
 import EmergencyRequests from './pages/help/EmergencyRequests';
-import AdminHelpDesk from './pages/admin/AdminHelpDesk';
 
-// Component to handle conditional home page rendering
+// ── Home page: redirect authenticated users to /home ─────────────────────
 const HomePage = () => {
   const { isAuthenticated, isLoading } = useAuth();
 
-  console.log('App render: isLoading=', isLoading, 'isAuthenticated=', isAuthenticated);
-
-  if (isLoading) {
-    console.log('App is loading...');
-    return null; // or a loading spinner
-  }
+  if (isLoading) return null;
 
   return isAuthenticated ? <Navigate to="/home" replace /> : <PublicHome />;
 };
 
-
-
-// ... imports ...
-
+// ── App ───────────────────────────────────────────────────────────────────
 const App = () => {
   return (
     <AuthProvider>
       <ToastProvider>
         <Router>
           <Routes>
-            {/* Hybrid routes (accessible to both, wrapper decides layout) */}
+
+            {/* ── Hybrid routes (public + authenticated, wrapper decides layout) ── */}
             <Route element={<HybridLayout />}>
               <Route path="/about" element={<AboutUs />} />
               <Route path="/events" element={<EventsPage />} />
               <Route path="/achievements" element={<AchievementsPage />} />
             </Route>
 
-            {/* Public routes */}
+            {/* ── Public routes ──────────────────────────────────────────────── */}
             <Route path="/" element={<PublicLayout />}>
               <Route index element={<HomePage />} />
               <Route path="login" element={<Login />} />
               <Route path="verify-otp" element={<OTPVerification />} />
             </Route>
 
-            {/* Admin routes */}
+            {/* ── Admin Login (public) ────────────────────────────────────────── */}
             <Route path="/admin/login" element={<AdminLogin />} />
 
-            <Route path="/admin" element={
-              <ProtectedRoute>
-                <AdminLayout />
-              </ProtectedRoute>
-            }>
+            {/* ── Admin routes (ADMIN + SUPER_ADMIN) ─────────────────────────── */}
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute minRole="ADMIN">
+                  <AdminLayout />
+                </ProtectedRoute>
+              }
+            >
               <Route index element={<AdminOverview />} />
-              <Route path="users" element={<UserList />} />
               <Route path="verify" element={<UserVerification />} />
               <Route path="moderation" element={<ContentModeration />} />
               <Route path="donations" element={<DonationManager />} />
               <Route path="scholarships" element={<ScholarshipManager />} />
-              <Route path="reports" element={<AdminReports />} />
               <Route path="create-content" element={<AdminContentCreation />} />
               <Route path="newsletters" element={<NewsletterEditor />} />
+              <Route path="reports" element={<AdminReports />} />
               <Route path="help-desk" element={<AdminHelpDesk />} />
+
+              {/* SUPER_ADMIN only routes */}
+              <Route
+                path="users"
+                element={
+                  <ProtectedRoute allowedRoles={['SUPER_ADMIN']}>
+                    <UserList />
+                  </ProtectedRoute>
+                }
+              />
             </Route>
 
-            {/* Protected authenticated routes */}
-            <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+            {/* ── Member routes (MEMBER+) ─────────────────────────────────────── */}
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute minRole="MEMBER">
+                  <Layout />
+                </ProtectedRoute>
+              }
+            >
               <Route path="home" element={<Home />} />
               <Route path="business" element={<BusinessList />} />
               <Route path="business/create" element={<CreateBusiness />} />
@@ -119,7 +132,6 @@ const App = () => {
               <Route path="support" element={<SupportRequest />} />
               <Route path="profile" element={<ProfilePage />} />
               <Route path="about" element={<AboutUs />} />
-
               <Route path="events" element={<EventsPage />} />
               <Route path="events/:id" element={<EventDetailsPage />} />
               <Route path="achievements" element={<AchievementsPage />} />
@@ -131,16 +143,16 @@ const App = () => {
               <Route path="education-loan" element={<EducationLoanPage />} />
               <Route path="business-collaboration" element={<BusinessCollaborationPage />} />
 
-              {/* Help Desk Routes */}
+              {/* Newsletter */}
+              <Route path="newsletters" element={<NewsletterPage />} />
+              <Route path="newsletters/:id" element={<NewsletterPage />} />
+
+              {/* Help Desk */}
               <Route path="help/create" element={<HelpRequestForm />} />
               <Route path="help/my-requests" element={<HelpRequestList />} />
               <Route path="help/emergency" element={<EmergencyRequests />} />
 
-              {/* Newsletter Routes */}
-              <Route path="newsletters" element={<NewsletterPage />} />
-              <Route path="newsletters/:id" element={<NewsletterPage />} />
-
-              {/* Profile section routes */}
+              {/* Profile sections */}
               <Route path="profile/about-me" element={<AboutMe />} />
               <Route path="profile/family" element={<Family />} />
               <Route path="profile/business" element={<Business />} />
@@ -152,6 +164,6 @@ const App = () => {
       </ToastProvider>
     </AuthProvider>
   );
-}
+};
 
 export default App;

@@ -35,9 +35,9 @@ client.interceptors.response.use(
         if (error.response && error.response.status === 401) {
             // Token is invalid or expired
             localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            // Redirect to login page
-            window.location.href = '/login';
+            // Redirect admins back to admin login, members to member login
+            const isAdminPath = window.location.pathname.startsWith('/admin');
+            window.location.href = isAdminPath ? '/admin/login' : '/login';
         }
         return Promise.reject(error);
     }

@@ -19,6 +19,7 @@ enum Role {
   MEMBER
   MENTOR
   ADMIN
+  SUPER_ADMIN
 }
 
 enum UserStatus {
@@ -60,6 +61,13 @@ enum CollaborationType {
   INVESTMENT
 }
 
+enum BusinessPostType {
+  UPDATE
+  ANNOUNCEMENT
+  OFFER
+  JOB
+}
+
 // --------------------------------------
 // User & Profile
 // --------------------------------------
@@ -91,6 +99,10 @@ model User {
   scholarshipApplications ScholarshipApplication[]
   announcements    Announcement[]
   collaborationRequests CollaborationRequest[]
+  businessPosts    BusinessPost[]
+  businessPostLikes BusinessPostLike[]
+  businessPostComments BusinessPostComment[]
+  followedBusinesses BusinessFollow[]
 
   @@index([mobileNumber])
   @@index([role])
@@ -177,9 +189,89 @@ model BusinessListing {
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
 
+  // Engagement relations
+  posts     BusinessPost[]
+  followers BusinessFollow[]
+
   @@index([category])
   @@index([status])
   @@index([paymentStatus])
+}
+
+// --------------------------------------
+// Business Networking & Engagement
+// --------------------------------------
+
+model BusinessPost {
+  id         String          @id @default(uuid())
+  businessId String
+  business   BusinessListing @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type      BusinessPostType @default(UPDATE)
+  content   String           @db.Text
+  imageUrl  String?
+
+  // Job-specific fields (populated when type = JOB)
+  jobTitle       String?
+  jobDescription String?  @db.Text
+  jobContact     String?
+  jobApplyLink   String?
+
+  isDeleted Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  likes    BusinessPostLike[]
+  comments BusinessPostComment[]
+
+  @@index([businessId])
+  @@index([userId])
+  @@index([type])
+  @@index([createdAt])
+}
+
+model BusinessPostLike {
+  id     String @id @default(uuid())
+  postId String
+  userId String
+  post   BusinessPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user   User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([postId, userId])
+  @@index([postId])
+}
+
+model BusinessPostComment {
+  id     String @id @default(uuid())
+  postId String
+  userId String
+  post   BusinessPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user   User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  content   String
+  isDeleted Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([postId])
+  @@index([userId])
+}
+
+model BusinessFollow {
+  id         String @id @default(uuid())
+  userId     String
+  businessId String
+  user       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  business   BusinessListing @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, businessId])
+  @@index([userId])
+  @@index([businessId])
 }
 
 model CareerListing {

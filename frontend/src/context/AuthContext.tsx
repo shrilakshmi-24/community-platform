@@ -5,10 +5,20 @@ import client from '../api/client';
 
 /* eslint-disable react-refresh/only-export-components */
 
+// ── Role hierarchy ──────────────────────────────────────────────────────────
+export type UserRole = 'GUEST' | 'MEMBER' | 'MENTOR' | 'ADMIN' | 'SUPER_ADMIN';
+export const ROLE_LEVELS: Record<UserRole, number> = {
+    GUEST: 0,
+    MEMBER: 1,
+    MENTOR: 2,
+    ADMIN: 3,
+    SUPER_ADMIN: 4,
+};
+
+// ── Types ───────────────────────────────────────────────────────────────────
 interface User {
     userId: string;
-    role: string;
-    description: string;
+    role: UserRole;
     status: string;
     isBusinessOwner?: boolean;
     profile?: {
@@ -20,7 +30,7 @@ interface User {
 
 interface DecodedToken {
     userId: string;
-    role: string;
+    role: UserRole;
     status: string;
     isBusinessOwner?: boolean;
     [key: string]: unknown;
@@ -31,7 +41,18 @@ interface AuthContextType {
     token: string | null;
     isAuthenticated: boolean;
     isLoading: boolean;
+
+    // Role checks
+    isSuperAdmin: boolean;
+    isAdmin: boolean;           // true for both ADMIN and SUPER_ADMIN
+    isMember: boolean;          // true for MEMBER, MENTOR, ADMIN, SUPER_ADMIN
+    isVerifiedMember: boolean;  // true only if status === 'ACTIVE'
+    isGuest: boolean;
+
+    hasMinRole: (minRole: UserRole) => boolean;
+
     login: (token: string) => void;
+    adminLoginWithToken: (token: string) => void;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     requestOtp: (mobileNumber: string) => Promise<any>;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -39,8 +60,24 @@ interface AuthContextType {
     logout: () => void;
 }
 
+// ── Context ─────────────────────────────────────────────────────────────────
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const decodeUser = (token: string): User | null => {
+    try {
+        const decoded = jwtDecode<DecodedToken>(token);
+        return {
+            userId: decoded.userId,
+            role: decoded.role,
+            status: decoded.status || 'ACTIVE',
+            isBusinessOwner: decoded.isBusinessOwner,
+        };
+    } catch {
+        return null;
+    }
+};
+
+// ── Provider ─────────────────────────────────────────────────────────────────
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
     const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
@@ -49,53 +86,53 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     useEffect(() => {
         const storedToken = localStorage.getItem('token');
         if (storedToken) {
-            try {
-                const decoded = jwtDecode<DecodedToken>(storedToken);
-                // eslint-disable-next-line
+            const decoded = decodeUser(storedToken);
+            if (decoded) {
                 setToken(storedToken);
-                setUser({
-                    userId: decoded.userId,
-                    role: decoded.role,
-                    description: '', // Assuming description is not in token or needs to be fetched
-                    status: decoded.status,
-                    isBusinessOwner: decoded.isBusinessOwner,
-                });
-            } catch (error) {
-                console.error('Invalid token:', error);
+                setUser(decoded);
+            } else {
                 localStorage.removeItem('token');
             }
         }
         setIsLoading(false);
-        console.log('AuthProvider finished loading');
     }, []);
 
+    // ── Role helpers ──────────────────────────────────────────────────────
+    const hasMinRole = (minRole: UserRole) => {
+        if (!user) return false;
+        return (ROLE_LEVELS[user.role] ?? 0) >= (ROLE_LEVELS[minRole] ?? 0);
+    };
+
+    const isSuperAdmin = user?.role === 'SUPER_ADMIN';
+    const isAdmin = user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN';
+    const isMember = hasMinRole('MEMBER');
+    const isVerifiedMember = isMember && user?.status === 'ACTIVE';
+    const isGuest = !user || user.role === 'GUEST';
+
+    // ── Auth actions ──────────────────────────────────────────────────────
     const login = (newToken: string) => {
         localStorage.setItem('token', newToken);
         setToken(newToken);
-        try {
-            const decoded = jwtDecode<DecodedToken>(newToken);
-            setUser({
-                userId: decoded.userId,
-                role: decoded.role,
-                description: '',
-                status: decoded.status,
-                isBusinessOwner: decoded.isBusinessOwner,
-            });
-        } catch (error) {
-            console.error('Invalid token during login:', error);
-        }
+        const decoded = decodeUser(newToken);
+        if (decoded) setUser(decoded);
+    };
+
+    // Alias for admin login — same mechanics, just signals it came from admin route
+    const adminLoginWithToken = (newToken: string) => {
+        login(newToken);
     };
 
     const requestOtp = async (mobileNumber: string) => {
-        await client.post('/auth/login', { mobileNumber });
+        return await client.post('/auth/login', { mobileNumber });
     };
 
     const verifyOtp = async (mobileNumber: string, otp: string) => {
         const { data } = await client.post('/auth/verify-otp', { mobileNumber, otp });
-        const { accessToken, user } = data;
+        const { accessToken } = data;
         localStorage.setItem('token', accessToken);
         setToken(accessToken);
-        setUser(user);
+        const decoded = decodeUser(accessToken);
+        if (decoded) setUser(decoded);
         return data;
     };
 
@@ -107,7 +144,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, token, isAuthenticated: !!user, isLoading, login, requestOtp, verifyOtp, logout }}>
+        <AuthContext.Provider value={{
+            user, token, isAuthenticated: !!user, isLoading,
+            isSuperAdmin, isAdmin, isMember, isVerifiedMember, isGuest,
+            hasMinRole,
+            login, adminLoginWithToken, requestOtp, verifyOtp, logout,
+        }}>
             {children}
         </AuthContext.Provider>
     );

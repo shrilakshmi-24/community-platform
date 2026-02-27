@@ -23,6 +23,7 @@ import announcementRoutes from './routes/announcementRoutes';
 import collaborationRoutes from './routes/collaborationRoutes';
 import donationRoutes from './routes/donationRoutes';
 import newsletterRoutes from './routes/newsletterRoutes';
+import businessEngagementRoutes from './routes/businessEngagementRoutes';
 
 if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config();
@@ -68,6 +69,7 @@ app.use('/api/announcements', announcementRoutes);
 app.use('/api/collaboration', collaborationRoutes);
 app.use('/api/donations', donationRoutes);
 app.use('/api/newsletter', newsletterRoutes);
+app.use('/api/business-engagement', businessEngagementRoutes);
 
 // Health check route
 app.get('/', (req, res) => {

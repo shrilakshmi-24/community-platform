@@ -1,6 +1,14 @@
-
 import { Request, Response, NextFunction } from 'express';
 import { verifyAccessToken } from '../utils/jwt';
+
+// Role hierarchy: higher index = more permissions
+export const ROLE_HIERARCHY: Record<string, number> = {
+    GUEST: 0,
+    MEMBER: 1,
+    MENTOR: 2,
+    ADMIN: 3,
+    SUPER_ADMIN: 4,
+};
 
 interface AuthRequest extends Request {
     user?: any;
@@ -10,7 +18,6 @@ export const authenticate = (req: AuthRequest, res: Response, next: NextFunction
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        console.log('Auth Failure: No Bearer token');
         res.status(401).json({ message: 'Unauthorized: No token provided' });
         return;
     }
@@ -19,7 +26,6 @@ export const authenticate = (req: AuthRequest, res: Response, next: NextFunction
     const decoded = verifyAccessToken(token);
 
     if (!decoded) {
-        console.log('Auth Failure: Invalid/Expired token');
         res.status(401).json({ message: 'Unauthorized: Invalid token' });
         return;
     }
@@ -42,12 +48,13 @@ export const optionalAuthenticate = (req: AuthRequest, res: Response, next: Next
     if (decoded) {
         req.user = decoded;
     }
-    // Proceed even if token invalid? Better strict if token provided.
-    // If token is invalid (expired), client should probably refresh, but here we can just treat as guest
-    // to avoid erroring out a donation page.
     next();
 };
 
+/**
+ * authorize(roles) — user must have one of the listed roles (exact match).
+ * SUPER_ADMIN always passes (implicit superuser).
+ */
 export const authorize = (roles: string[]) => {
     return (req: AuthRequest, res: Response, next: NextFunction): void => {
         if (!req.user) {
@@ -55,7 +62,36 @@ export const authorize = (roles: string[]) => {
             return;
         }
 
+        // SUPER_ADMIN bypasses all role checks
+        if (req.user.role === 'SUPER_ADMIN') {
+            next();
+            return;
+        }
+
         if (!roles.includes(req.user.role)) {
+            res.status(403).json({ message: 'Forbidden: Insufficient permissions' });
+            return;
+        }
+
+        next();
+    };
+};
+
+/**
+ * requireMinRole(role) — user must have at least the given role level.
+ * E.g. requireMinRole('ADMIN') allows ADMIN + SUPER_ADMIN.
+ */
+export const requireMinRole = (minRole: string) => {
+    return (req: AuthRequest, res: Response, next: NextFunction): void => {
+        if (!req.user) {
+            res.status(401).json({ message: 'Unauthorized' });
+            return;
+        }
+
+        const userLevel = ROLE_HIERARCHY[req.user.role] ?? 0;
+        const requiredLevel = ROLE_HIERARCHY[minRole] ?? 0;
+
+        if (userLevel < requiredLevel) {
             res.status(403).json({ message: 'Forbidden: Insufficient permissions' });
             return;
         }

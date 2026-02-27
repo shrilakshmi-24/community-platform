@@ -155,6 +155,7 @@ export const getPendingMembers = async (req: Request, res: Response): Promise<vo
             where: { status: 'PENDING' },
             select: {
                 id: true,
+                mobileNumber: true,
                 status: true,
                 createdAt: true,
                 profile: {
@@ -164,6 +165,7 @@ export const getPendingMembers = async (req: Request, res: Response): Promise<vo
                         address: true,
                         city: true,
                         state: true,
+                        avatarUrl: true,
                         submittedAt: true
                     }
                 }

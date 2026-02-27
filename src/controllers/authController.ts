@@ -1,9 +1,15 @@
-
 import { Request, Response } from 'express';
 import prisma from '../config/db';
 import { generateOTP, sendOTP } from '../utils/otpService';
 import { generateTokens } from '../utils/jwt';
 
+// ── Dev admin credentials (override in production via env) ─────────────────
+const DEV_ADMINS: Record<string, { password: string; role: 'ADMIN' | 'SUPER_ADMIN' }> = {
+    superadmin: { password: process.env.SUPER_ADMIN_PASSWORD || 'superadmin123', role: 'SUPER_ADMIN' },
+    admin: { password: process.env.ADMIN_PASSWORD || 'admin123', role: 'ADMIN' },
+};
+
+// ── Member OTP Login ────────────────────────────────────────────────────────
 export const login = async (req: Request, res: Response): Promise<void> => {
     try {
         const { mobileNumber: mobileInput } = req.body;
@@ -14,25 +20,18 @@ export const login = async (req: Request, res: Response): Promise<void> => {
             return;
         }
 
-        // In a real app, validate mobile number format
-
         const otp = generateOTP();
-        // In production: store hash(otp) in DB associated with mobileNumber
-        // For MVP/Demo: storing OTP directly in user record (simplified)
-        // NOTE: This is not production secure for OTP storage. 
-        // Ideally use a separate OTP table or Redis with expiration.
 
-        // Check if user exists, if not create placeholder
         let user = await prisma.user.findUnique({ where: { mobileNumber } });
 
         if (!user) {
             user = await prisma.user.create({
                 data: {
                     mobileNumber,
-                    role: 'MEMBER',
-                    status: 'ACTIVE',
-                    otpHash: otp, // In prod, hash this
-                    otpExpires: new Date(Date.now() + 5 * 60 * 1000) // 5 mins
+                    role: 'GUEST',
+                    status: 'PENDING',
+                    otpHash: otp,
+                    otpExpires: new Date(Date.now() + 5 * 60 * 1000)
                 }
             });
         } else {
@@ -47,10 +46,9 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
         try {
             await sendOTP(mobileNumber, otp);
-            res.status(200).json({ message: 'OTP sent successfully', otp: otp }); // Returning OTP for demo purposes ONLY
+            res.status(200).json({ message: 'OTP sent successfully', otp: otp }); // otp returned for demo only
         } catch (smsError) {
             console.warn('Failed to send SMS:', smsError);
-            // Return success anyway to allow development/demo flow
             res.status(200).json({
                 message: 'OTP generation successful (SMS failed, check console)',
                 otp: otp
@@ -63,6 +61,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     }
 };
 
+// ── Member OTP Verify ───────────────────────────────────────────────────────
 export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
     try {
         const { mobileNumber: mobileInput, otp: otpInput } = req.body;
@@ -103,7 +102,6 @@ export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
             });
         }
 
-        // Validate OTP (either development OTP or stored OTP)
         if (!user) {
             res.status(400).json({ message: 'User not found' });
             return;
@@ -114,7 +112,6 @@ export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
             return;
         }
 
-        // Clear OTP if it was a real OTP (not development bypass)
         if (!isDevelopmentOtp) {
             await prisma.user.update({
                 where: { id: user.id },
@@ -124,8 +121,6 @@ export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
 
         const isBusinessOwner = user.businessListings && user.businessListings.length > 0;
         const tokens = generateTokens(user.id, user.role, isBusinessOwner);
-
-        // Check if profile is complete (basic check: has profile record and a name)
         const isProfileComplete = !!(user.profile && user.profile.fullName);
 
         res.status(200).json({
@@ -143,6 +138,62 @@ export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
 
     } catch (error) {
         console.error(error);
+        res.status(500).json({ message: 'Server error', error });
+    }
+};
+
+// ── Admin Credential Login → returns JWT with ADMIN or SUPER_ADMIN role ─────
+export const adminLogin = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { username, password } = req.body;
+
+        if (!username || !password) {
+            res.status(400).json({ message: 'Username and password are required' });
+            return;
+        }
+
+        const devAdmin = DEV_ADMINS[username.toLowerCase()];
+
+        if (!devAdmin || devAdmin.password !== password) {
+            res.status(401).json({ message: 'Invalid credentials' });
+            return;
+        }
+
+        // Find or create a synthetic DB user for this admin (keyed by username)
+        const syntheticMobile = `admin_${username.toLowerCase()}`;
+        let user = await prisma.user.findUnique({ where: { mobileNumber: syntheticMobile } });
+
+        if (!user) {
+            user = await prisma.user.create({
+                data: {
+                    mobileNumber: syntheticMobile,
+                    role: devAdmin.role,
+                    status: 'ACTIVE',
+                }
+            });
+        } else if (user.role !== devAdmin.role) {
+            // Keep role in sync with DEV_ADMINS config
+            user = await prisma.user.update({
+                where: { id: user.id },
+                data: { role: devAdmin.role }
+            });
+        }
+
+        const tokens = generateTokens(user.id, user.role, false);
+
+        res.status(200).json({
+            message: 'Admin login successful',
+            user: {
+                id: user.id,
+                username,
+                role: user.role,
+                status: user.status,
+            },
+            ...tokens
+        });
+
+    } catch (error) {
+        console.error('Admin login error:', error);
         res.status(500).json({ message: 'Server error', error });
     }
 };
