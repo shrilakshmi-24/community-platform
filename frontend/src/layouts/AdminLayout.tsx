@@ -12,6 +12,7 @@ import PostAddIcon from '@mui/icons-material/PostAdd';
 import MenuIcon from '@mui/icons-material/Menu';
 import LogoutIcon from '@mui/icons-material/Logout';
 import LiveHelpIcon from '@mui/icons-material/LiveHelp';
+import NewspaperIcon from '@mui/icons-material/Newspaper';
 import { useAuth } from '../context/AuthContext';
 
 import { Logo } from '../components/Logo';
@@ -36,6 +37,7 @@ const AdminLayout = () => {
         { text: 'Donations', icon: <VolunteerActivismIcon />, path: '/admin/donations' },
         { text: 'Scholarships', icon: <SchoolIcon />, path: '/admin/scholarships' },
         { text: 'Create Content', icon: <PostAddIcon />, path: '/admin/create-content' },
+        { text: 'Newsletters', icon: <NewspaperIcon />, path: '/admin/newsletters' },
         { text: 'Reports & Analytics', icon: <BarChartIcon />, path: '/admin/reports' },
         { text: 'Help Desk', icon: <LiveHelpIcon />, path: '/admin/help-desk' },
     ];

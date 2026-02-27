@@ -5,15 +5,17 @@ import {
     getNewsletterById,
     updateNewsletter,
     publishNewsletter,
-    deleteNewsletter
+    deleteNewsletter,
+    uploadNewsletterFile
 } from '../controllers/newsletterController';
-// Add authentication middleware if needed, e.g., authenticateUser, authorizeAdmin
-// import { authenticateToken, authorizeAdmin } from '../middleware/auth'; 
+import { upload } from '../utils/cloudinary';
 
 const router = express.Router();
 
-// Public Routes (Visible to all members)
-// In a real app, public routes would only show approved newsletters
+// File upload endpoint (image or PDF → Cloudinary)
+router.post('/upload', upload.single('file'), uploadNewsletterFile);
+
+// Public Routes (Visible to all members) - only show APPROVED
 router.get('/all', getNewsletters);
 router.get('/:id', getNewsletterById);
 

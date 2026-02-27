@@ -1,16 +1,12 @@
 import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
-// @ts-ignore
-import nodemailer from 'nodemailer';
 import prisma from '../config/db';
-
-// const prisma = new PrismaClient(); // Removed local instance
+import { uploadToCloudinary } from '../utils/cloudinary';
 
 // Schema for Creating/Updating Newsletter
 const newsletterSchema = z.object({
   title: z.string().min(3),
-  content: z.string().min(10), // Rich Text HTML
+  content: z.string().min(1), // Rich Text HTML
   coverImageUrl: z.string().optional(),
   pdfUrl: z.string().optional(),
   linkedEventIds: z.array(z.string()).optional(),
@@ -20,10 +16,43 @@ const newsletterSchema = z.object({
   emailSummary: z.string().optional(),
 });
 
+// --- UPLOAD: Image or PDF to Cloudinary ---
+export const uploadNewsletterFile = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const multerReq = req as any;
+    if (!multerReq.file) {
+      res.status(400).json({ error: 'No file provided' });
+      return;
+    }
+
+    const fileType = multerReq.file.mimetype === 'application/pdf' ? 'pdf' : 'image';
+    const folder = fileType === 'pdf' ? 'newsletter_pdfs' : 'newsletter_images';
+
+    const url = await uploadToCloudinary(multerReq.file.buffer, folder);
+    res.status(200).json({ url, fileType });
+  } catch (error) {
+    console.error('Newsletter File Upload Error:', error);
+    res.status(500).json({ error: 'File upload failed' });
+  }
+};
+
 // --- ADMIN: Create Newsletter (Draft) ---
 export const createNewsletter = async (req: Request, res: Response): Promise<void> => {
   try {
-    const validatedData = newsletterSchema.parse(req.body);
+    const body = req.body;
+
+    // Parse arrays if sent as JSON strings (from multipart)
+    if (typeof body.linkedEventIds === 'string') {
+      try { body.linkedEventIds = JSON.parse(body.linkedEventIds); } catch { body.linkedEventIds = []; }
+    }
+    if (typeof body.linkedAchievementIds === 'string') {
+      try { body.linkedAchievementIds = JSON.parse(body.linkedAchievementIds); } catch { body.linkedAchievementIds = []; }
+    }
+    if (typeof body.linkedBusinessIds === 'string') {
+      try { body.linkedBusinessIds = JSON.parse(body.linkedBusinessIds); } catch { body.linkedBusinessIds = []; }
+    }
+
+    const validatedData = newsletterSchema.parse(body);
 
     const newsletter = await (prisma as any).newsletter.create({
       data: {
@@ -43,7 +72,20 @@ export const createNewsletter = async (req: Request, res: Response): Promise<voi
 export const updateNewsletter = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const validatedData = newsletterSchema.parse(req.body);
+    const body = req.body;
+
+    // Parse arrays if sent as JSON strings
+    if (typeof body.linkedEventIds === 'string') {
+      try { body.linkedEventIds = JSON.parse(body.linkedEventIds); } catch { body.linkedEventIds = []; }
+    }
+    if (typeof body.linkedAchievementIds === 'string') {
+      try { body.linkedAchievementIds = JSON.parse(body.linkedAchievementIds); } catch { body.linkedAchievementIds = []; }
+    }
+    if (typeof body.linkedBusinessIds === 'string') {
+      try { body.linkedBusinessIds = JSON.parse(body.linkedBusinessIds); } catch { body.linkedBusinessIds = []; }
+    }
+
+    const validatedData = newsletterSchema.parse(body);
 
     const newsletter = await (prisma as any).newsletter.update({
       where: { id },
@@ -57,31 +99,20 @@ export const updateNewsletter = async (req: Request, res: Response): Promise<voi
   }
 };
 
-// --- ADMIN: Publish Newsletter & Broadcast Email ---
+// --- ADMIN: Publish Newsletter ---
 export const publishNewsletter = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
 
-    // 1. Update Status
     const newsletter = await (prisma as any).newsletter.update({
       where: { id },
       data: {
-        status: 'APPROVED', // Using 'APPROVED' as 'PUBLISHED' based on Enum
+        status: 'APPROVED',
         publishedAt: new Date(),
       },
     });
 
-    // 2. Broadcast Email (Mocking for now, can implement actual logic later)
-    if (newsletter.emailSubject && newsletter.emailSummary) {
-      // In a real scenario, we would fetch all subscribed users and send emails.
-      console.log(`[Email Broadcast] Sending "${newsletter.emailSubject}" to all members...`);
-      // Simulate async email sending
-      setTimeout(() => {
-        console.log(`[Email Broadcast] Sent successfully.`);
-      }, 2000);
-    }
-
-    res.status(200).json({ message: 'Newsletter published and broadcast initiated', newsletter });
+    res.status(200).json({ message: 'Newsletter published', newsletter });
   } catch (error) {
     console.error('Publish Newsletter Error:', error);
     res.status(500).json({ error: 'Failed to publish newsletter' });
@@ -94,9 +125,6 @@ export const getNewsletters = async (req: Request, res: Response): Promise<void>
     const { status } = req.query;
 
     const where: any = {};
-
-    // If public request (not admin), only show APPROVED
-    // For simplicity, let's assume if status is passed, use it, else default to all for admin or APPROVED for public
     if (status) {
       where.status = status;
     }
@@ -127,17 +155,15 @@ export const getNewsletterById = async (req: Request, res: Response): Promise<vo
       return;
     }
 
-    // Fetch linked content details manually since we store IDs
-    // In a real app, strict relations or `include` would be better if we migrated to relations
-    const linkedEvents = newsletter.linkedEventIds.length > 0
+    const linkedEvents = newsletter.linkedEventIds?.length > 0
       ? await prisma.event.findMany({ where: { id: { in: newsletter.linkedEventIds } } })
       : [];
 
-    const linkedAchievements = newsletter.linkedAchievementIds.length > 0
+    const linkedAchievements = newsletter.linkedAchievementIds?.length > 0
       ? await prisma.achievement.findMany({ where: { id: { in: newsletter.linkedAchievementIds } } })
       : [];
 
-    const linkedBusinesses = newsletter.linkedBusinessIds.length > 0
+    const linkedBusinesses = newsletter.linkedBusinessIds?.length > 0
       ? await prisma.businessListing.findMany({ where: { id: { in: newsletter.linkedBusinessIds } } })
       : [];
 

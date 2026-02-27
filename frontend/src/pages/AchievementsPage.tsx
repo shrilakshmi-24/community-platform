@@ -44,7 +44,7 @@ const AchievementsPage = () => {
     const [achievements, setAchievements] = useState<Achievement[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedAchievement, setSelectedAchievement] = useState<Achievement | null>(null);
-    const [showCurtain, setShowCurtain] = useState(true);
+
 
     // Carousel State
     const [activeIndex, setActiveIndex] = useState(0);
@@ -64,7 +64,6 @@ const AchievementsPage = () => {
                 console.error('Failed to fetch achievements', error);
             } finally {
                 setLoading(false);
-                setTimeout(() => setShowCurtain(false), 1000);
             }
         };
         fetchAchievements();
@@ -143,44 +142,6 @@ const AchievementsPage = () => {
     return (
         <Box sx={{ minHeight: '100vh', bgcolor: '#fafafa', pb: 12, fontFamily: "'Inter', sans-serif" }}>
 
-            {/* Stage Curtain Animation */}
-            <AnimatePresence>
-                {showCurtain && (
-                    <Box sx={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex' }}>
-                        <motion.div
-                            initial={{ x: 0 }}
-                            exit={{ x: '-100%' }}
-                            transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-                            style={{ width: '50%', height: '100%', background: 'linear-gradient(90deg, #E62A4D 0%, #FA8231 100%)' }}
-                        />
-                        <motion.div
-                            initial={{ x: 0 }}
-                            exit={{ x: '100%' }}
-                            transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-                            style={{ width: '50%', height: '100%', background: 'linear-gradient(-90deg, #E62A4D 0%, #FA8231 100%)' }}
-                        />
-                        <motion.div
-                            initial={{ opacity: 1, scale: 0.9, x: '-50%', y: '-50%' }}
-                            animate={{ scale: 1.1, x: '-50%', y: '-50%' }}
-                            exit={{ opacity: 0, scale: 1.5, x: '-50%', y: '-50%' }}
-                            transition={{ duration: 0.8 }}
-                            style={{
-                                position: 'absolute', top: '50%', left: '50%',
-                                color: '#E62A4D', textAlign: 'center', zIndex: 10001, width: '100%'
-                            }}
-                        >
-                            <Typography variant="h1" fontWeight={900} sx={{
-                                fontSize: { xs: '3rem', md: '5rem' },
-                                letterSpacing: -2,
-                                color: 'white',
-                                textShadow: '0 4px 10px rgba(0,0,0,0.3)'
-                            }}>
-                                HALL OF FAME
-                            </Typography>
-                        </motion.div>
-                    </Box>
-                )}
-            </AnimatePresence>
 
             {/* Elevated Hero Area */}
             <Box sx={{
