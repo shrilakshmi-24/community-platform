@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Box, Typography, Paper, TextField, Button, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tab, Tabs, Chip, FormControl, InputLabel, Select, MenuItem, Avatar, Alert } from '@mui/material';
+import { Box, Typography, Paper, Button, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tab, Tabs, Chip, Avatar, Alert, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import SchoolIcon from '@mui/icons-material/School';
 import client from '../../api/client';
 import { toast } from 'react-hot-toast';
@@ -28,7 +28,10 @@ interface Scholarship {
     amount: number;
     deadline: string;
     educationLevel: string;
+    type: string;
+    applicationLink?: string;
     applications?: Application[];
+    _count?: { applications: number; };
 }
 
 const ScholarshipManager = () => {
@@ -37,18 +40,11 @@ const ScholarshipManager = () => {
     const [applications, setApplications] = useState<Application[]>([]);
     const [selectedScholarshipId, setSelectedScholarshipId] = useState<string>('');
 
-    // Create Form State
-    const [newScholarship, setNewScholarship] = useState({
-        title: '',
-        description: '',
-        amount: '',
-        deadline: '',
-        educationLevel: 'Undergraduate'
-    });
+    // Create Form State removed
 
     const fetchScholarships = useCallback(async () => {
         try {
-            const res = await client.get('/community/scholarships'); // Using public endpoint for list
+            const res = await client.get('/admin/scholarships'); // Admin endpoint returns all scholarships
             setScholarships(res.data.scholarships);
             if (res.data.scholarships.length > 0 && !selectedScholarshipId) {
                 setSelectedScholarshipId(res.data.scholarships[0].id);
@@ -83,17 +79,7 @@ const ScholarshipManager = () => {
         }
     }, [selectedScholarshipId, fetchApplications]);
 
-    const handleCreate = async () => {
-        try {
-            await client.post('/admin/scholarships', newScholarship);
-            toast.success('Scholarship created successfully');
-            setNewScholarship({ title: '', description: '', amount: '', deadline: '', educationLevel: 'Undergraduate' });
-            fetchScholarships(); // Refresh
-        } catch (error) {
-            console.error('Error creating scholarship', error);
-            toast.error('Failed to create scholarship');
-        }
-    };
+    // handleCreate function removed
 
     const handleStatusUpdate = async (appId: string, status: string) => {
         try {
@@ -103,16 +89,6 @@ const ScholarshipManager = () => {
         } catch (error) {
             console.error('Error updating status', error);
             toast.error('Failed to update status');
-        }
-    };
-
-    const textFieldSx = {
-        '& .MuiOutlinedInput-root': {
-            bgcolor: '#f8fafc',
-            borderRadius: '12px',
-            '& fieldset': { borderColor: '#e2e8f0' },
-            '&:hover fieldset': { borderColor: '#cbd5e1' },
-            '&.Mui-focused fieldset': { borderColor: '#E62A4D', borderWidth: 2 }
         }
     };
 
@@ -171,87 +147,14 @@ const ScholarshipManager = () => {
                         }
                     }}
                 >
-                    <Tab label="Create & Manage" />
+                    <Tab label="Active Scholarships" />
                     <Tab label="Review Applications" />
                 </Tabs>
             </Box>
 
             {tabValue === 0 && (
                 <Grid container spacing={4}>
-                    <Grid size={{ xs: 12, md: 5 }}>
-                        <Paper sx={{ ...paperSx }}>
-                            <Box sx={{ position: 'absolute', top: 0, left: 0, width: '4px', height: '100%', background: BRAND_GRADIENT }} />
-                            <Typography variant="h6" fontWeight={800} gutterBottom sx={{ color: '#1e293b', mb: 3 }}>
-                                Create New Scholarship
-                            </Typography>
-                            <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                                <TextField
-                                    label="Scholarship Title"
-                                    fullWidth
-                                    value={newScholarship.title}
-                                    onChange={(e) => setNewScholarship({ ...newScholarship, title: e.target.value })}
-                                    sx={textFieldSx}
-                                />
-                                <TextField
-                                    label="Amount (₹)"
-                                    type="number"
-                                    fullWidth
-                                    value={newScholarship.amount}
-                                    onChange={(e) => setNewScholarship({ ...newScholarship, amount: e.target.value })}
-                                    sx={textFieldSx}
-                                />
-                                <FormControl fullWidth sx={textFieldSx}>
-                                    <InputLabel sx={{ fontWeight: 600 }}>Education Level</InputLabel>
-                                    <Select
-                                        value={newScholarship.educationLevel}
-                                        label="Education Level"
-                                        onChange={(e) => setNewScholarship({ ...newScholarship, educationLevel: e.target.value })}
-                                        sx={{ '& .MuiOutlinedInput-notchedOutline': { borderColor: '#e2e8f0' } }}
-                                    >
-                                        <MenuItem value="High School">High School</MenuItem>
-                                        <MenuItem value="Undergraduate">Undergraduate</MenuItem>
-                                        <MenuItem value="Postgraduate">Postgraduate</MenuItem>
-                                        <MenuItem value="Research">Research</MenuItem>
-                                        <MenuItem value="Vocational">Vocational</MenuItem>
-                                    </Select>
-                                </FormControl>
-                                <TextField
-                                    label="Application Deadline"
-                                    type="date"
-                                    fullWidth
-                                    InputLabelProps={{ shrink: true }}
-                                    value={newScholarship.deadline}
-                                    onChange={(e) => setNewScholarship({ ...newScholarship, deadline: e.target.value })}
-                                    sx={textFieldSx}
-                                />
-                                <TextField
-                                    label="Description"
-                                    multiline
-                                    rows={4}
-                                    fullWidth
-                                    value={newScholarship.description}
-                                    onChange={(e) => setNewScholarship({ ...newScholarship, description: e.target.value })}
-                                    sx={textFieldSx}
-                                />
-                                <Button
-                                    variant="contained"
-                                    onClick={handleCreate}
-                                    sx={{
-                                        mt: 1, py: 1.5, borderRadius: '12px',
-                                        background: BRAND_GRADIENT,
-                                        boxShadow: '0 8px 20px -6px rgba(230,42,77,0.4)',
-                                        fontWeight: 800, textTransform: 'none', fontSize: '1rem',
-                                        '&:hover': { transform: 'translateY(-2px)', boxShadow: '0 12px 25px -6px rgba(230,42,77,0.5)' },
-                                        transition: 'all 0.2s'
-                                    }}
-                                >
-                                    Publish Scholarship
-                                </Button>
-                            </Box>
-                        </Paper>
-                    </Grid>
-
-                    <Grid size={{ xs: 12, md: 7 }}>
+                    <Grid size={{ xs: 12 }}>
                         <Paper sx={{ ...paperSx, p: 0 }}>
                             <Box sx={{ p: { xs: 3, md: 4 }, pb: 2 }}>
                                 <Typography variant="h6" fontWeight={800} gutterBottom sx={{ color: '#1e293b' }}>
@@ -263,9 +166,11 @@ const ScholarshipManager = () => {
                                     <TableHead>
                                         <TableRow sx={{ bgcolor: '#f8fafc' }}>
                                             <TableCell sx={{ fontWeight: 700, color: '#475569', borderBottom: '2px solid #e2e8f0' }}>Title</TableCell>
+                                            <TableCell sx={{ fontWeight: 700, color: '#475569', borderBottom: '2px solid #e2e8f0' }}>Type</TableCell>
                                             <TableCell sx={{ fontWeight: 700, color: '#475569', borderBottom: '2px solid #e2e8f0' }}>Amount</TableCell>
                                             <TableCell sx={{ fontWeight: 700, color: '#475569', borderBottom: '2px solid #e2e8f0' }}>Deadline</TableCell>
                                             <TableCell sx={{ fontWeight: 700, color: '#475569', borderBottom: '2px solid #e2e8f0' }}>Level</TableCell>
+                                            <TableCell sx={{ fontWeight: 700, color: '#475569', borderBottom: '2px solid #e2e8f0' }}>Applications</TableCell>
                                             <TableCell align="right" sx={{ fontWeight: 700, color: '#475569', borderBottom: '2px solid #e2e8f0' }}>Actions</TableCell>
                                         </TableRow>
                                     </TableHead>
@@ -281,10 +186,16 @@ const ScholarshipManager = () => {
                                             scholarships.map((s) => (
                                                 <TableRow key={s.id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                                                     <TableCell sx={{ fontWeight: 700, color: '#1e293b' }}>{s.title}</TableCell>
+                                                    <TableCell>
+                                                        <Chip label={s.type} size="small" sx={{ bgcolor: s.type === 'INTERNAL' ? '#e0e7ff' : '#fef3c7', color: s.type === 'INTERNAL' ? '#4f46e5' : '#d97706', fontWeight: 700, borderRadius: '6px' }} />
+                                                    </TableCell>
                                                     <TableCell sx={{ fontWeight: 800, color: '#10b981' }}>₹{s.amount.toLocaleString()}</TableCell>
                                                     <TableCell sx={{ color: '#64748b', fontWeight: 500 }}>{new Date(s.deadline).toLocaleDateString()}</TableCell>
                                                     <TableCell>
                                                         <Chip label={s.educationLevel} size="small" sx={{ bgcolor: BRAND_GRADIENT_LIGHT, color: '#E62A4D', fontWeight: 700, borderRadius: '6px' }} />
+                                                    </TableCell>
+                                                    <TableCell sx={{ fontWeight: 700, color: '#1e293b' }}>
+                                                        {s._count?.applications || 0}
                                                     </TableCell>
                                                     <TableCell align="right">
                                                         <Button

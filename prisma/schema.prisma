@@ -463,6 +463,7 @@ model Scholarship {
   amount          Float
   deadline        DateTime
   educationLevel  String
+  type            String   @default("INTERNAL") // INTERNAL or EXTERNAL
   applicationLink String? // External link for application (optional)
   
   // Specific Fields

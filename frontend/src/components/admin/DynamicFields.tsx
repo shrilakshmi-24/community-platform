@@ -296,11 +296,22 @@ const DynamicFields: React.FC<DynamicFieldsProps> = ({ contentType, formData, se
                         fullWidth label="Education Level" required select
                         value={formData.educationLevel} onChange={(e) => setFormData({ ...formData, educationLevel: e.target.value })}
                     >
-                        <MenuItem value="School">School</MenuItem>
+                        <MenuItem value="High School">High School</MenuItem>
                         <MenuItem value="Undergraduate">Undergraduate</MenuItem>
                         <MenuItem value="Postgraduate">Postgraduate</MenuItem>
                         <MenuItem value="PhD">PhD</MenuItem>
+                        <MenuItem value="Vocational">Vocational</MenuItem>
+                        <MenuItem value="Research">Research</MenuItem>
                         <MenuItem value="Other">Other</MenuItem>
+                    </TextField>
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                    <TextField
+                        fullWidth label="Scholarship Type" required select
+                        value={formData.type} onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                    >
+                        <MenuItem value="INTERNAL">Internal</MenuItem>
+                        <MenuItem value="EXTERNAL">External</MenuItem>
                     </TextField>
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
@@ -324,20 +335,24 @@ const DynamicFields: React.FC<DynamicFieldsProps> = ({ contentType, formData, se
                         placeholder="List of documents needed"
                     />
                 </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                    <TextField
-                        fullWidth label="External Application Link (Optional)"
-                        value={formData.applicationLink} onChange={(e) => setFormData({ ...formData, applicationLink: e.target.value })}
-                        helperText="If provided, users will be redirected here."
-                    />
-                </Grid>
+                {
+                    formData.type === 'EXTERNAL' && (
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <TextField
+                                fullWidth label="External Application Link"
+                                value={formData.applicationLink} onChange={(e) => setFormData({ ...formData, applicationLink: e.target.value })}
+                                helperText="If provided, users will be redirected here."
+                            />
+                        </Grid>
+                    )
+                }
                 <Grid size={{ xs: 12, sm: 6 }}>
                     <TextField
                         fullWidth label="Contact Email"
                         value={formData.contactEmail} onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })}
                     />
                 </Grid>
-            </Grid>
+            </Grid >
         );
     }
 

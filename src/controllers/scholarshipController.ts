@@ -1,17 +1,26 @@
 import { Request, Response } from 'express';
 import prisma from '../config/db';
 
+import { uploadToCloudinary } from '../utils/cloudinary';
+
 // --- Admin Operations ---
 
 export const createScholarship = async (req: Request, res: Response): Promise<void> => {
     try {
         const {
-            title, description, shortDescription, amount, deadline, educationLevel, applicationLink,
+            title, description, shortDescription, amount, deadline, educationLevel, type, applicationLink,
             providerName, eligibility, requiredDocuments, contactEmail, contactPhone,
             status, publishDate, expiryDate, visibility
         } = req.body;
 
-        const mediaUrl = (req as any).file ? (req as any).file.path : null;
+        let mediaUrl = null;
+        if ((req as any).file) {
+            try {
+                mediaUrl = await uploadToCloudinary((req as any).file.buffer, 'scholarships');
+            } catch (error) {
+                console.error('File upload failed:', error);
+            }
+        }
 
         const scholarship = await prisma.scholarship.create({
             data: {
@@ -21,6 +30,7 @@ export const createScholarship = async (req: Request, res: Response): Promise<vo
                 amount: parseFloat(amount),
                 deadline: new Date(deadline),
                 educationLevel,
+                type: type || 'INTERNAL',
                 applicationLink: applicationLink || null,
 
                 providerName,
@@ -105,6 +115,25 @@ export const updateApplicationStatus = async (req: Request, res: Response): Prom
     }
 };
 
+// --- Admin: Get All Scholarships (regardless of status) ---
+
+export const getAllScholarshipsAdmin = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const scholarships = await prisma.scholarship.findMany({
+            include: {
+                _count: {
+                    select: { applications: true }
+                }
+            },
+            orderBy: { createdAt: 'desc' }
+        });
+        res.json({ scholarships });
+    } catch (error) {
+        console.error('Error fetching scholarships for admin:', error);
+        res.status(500).json({ message: 'Error fetching scholarships', error });
+    }
+};
+
 // --- User Operations ---
 
 export const getAllScholarships = async (req: Request, res: Response): Promise<void> => {
@@ -115,6 +144,11 @@ export const getAllScholarships = async (req: Request, res: Response): Promise<v
                     { status: 'APPROVED', publishDate: { lte: new Date() } },
                     { isActive: true } // Fallback for old data
                 ]
+            },
+            include: {
+                _count: {
+                    select: { applications: true }
+                }
             },
             orderBy: { deadline: 'asc' }
         });
@@ -134,7 +168,7 @@ export const getAllScholarships = async (req: Request, res: Response): Promise<v
     }
 };
 
-import { uploadToCloudinary } from '../utils/cloudinary';
+
 
 interface MulterRequest extends Request {
     file?: Express.Multer.File;

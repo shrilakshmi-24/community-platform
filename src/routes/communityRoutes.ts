@@ -39,7 +39,7 @@ router.post('/donations/record', optionalAuthenticate, recordDonation);
 // Scholarships
 import { getAllScholarships, applyForScholarship } from '../controllers/scholarshipController';
 router.get('/scholarships', getAllScholarships);
-router.post('/scholarships/apply', authenticate, applyForScholarship);
+router.post('/scholarships/apply', authenticate, upload.single('markSheet'), applyForScholarship);
 
 import { getMyScholarshipApplications } from '../controllers/scholarshipController';
 router.get('/scholarships/my-applications', authenticate, getMyScholarshipApplications);

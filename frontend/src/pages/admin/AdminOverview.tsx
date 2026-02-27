@@ -8,6 +8,7 @@ import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import EventIcon from '@mui/icons-material/Event';
 import WorkIcon from '@mui/icons-material/Work';
 import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
+import SchoolIcon from '@mui/icons-material/School';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 
@@ -24,6 +25,7 @@ interface Stats {
         career: number;
         events: number;
         services: number;
+        scholarships: number;
     };
 }
 interface StatCardProps {
@@ -174,6 +176,14 @@ const AdminOverview = () => {
                         value={stats.content.services}
                         icon={<VolunteerActivismIcon sx={{ fontSize: 28 }} />}
                         onClick={() => navigate('/admin/moderation')}
+                    />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                    <StatCard
+                        title="Pending Scholarships"
+                        value={stats.content.scholarships}
+                        icon={<SchoolIcon sx={{ fontSize: 28 }} />}
+                        onClick={() => navigate('/admin/scholarships')}
                     />
                 </Grid>
             </Grid>

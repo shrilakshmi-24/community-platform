@@ -24,6 +24,7 @@ import DonationsPage from './pages/DonationsPage';
 import ScholarshipsPage from './pages/ScholarshipsPage';
 import AnnouncementsPage from './pages/AnnouncementsPage';
 import EducationLoanPage from './pages/EducationLoanPage';
+import ApplyScholarship from './pages/scholarships/ApplyScholarship';
 import BusinessCollaborationPage from './pages/BusinessCollaborationPage';
 import EventDetailsPage from './pages/EventDetailsPage';
 import NewsletterPage from './pages/NewsletterPage';
@@ -126,6 +127,7 @@ const App = () => {
               <Route path="notifications" element={<NotificationsPage />} />
               <Route path="donations" element={<DonationsPage />} />
               <Route path="scholarships" element={<ScholarshipsPage />} />
+              <Route path="scholarships/apply/:id" element={<ApplyScholarship />} />
               <Route path="education-loan" element={<EducationLoanPage />} />
               <Route path="business-collaboration" element={<BusinessCollaborationPage />} />
 

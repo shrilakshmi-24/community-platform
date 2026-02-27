@@ -11,6 +11,7 @@ export const getStats = async (req: Request, res: Response): Promise<void> => {
         const pendingCareer = await prisma.careerListing.count({ where: { status: 'PENDING' } });
         const pendingEvents = await prisma.event.count({ where: { status: 'PENDING' } });
         const pendingServices = await prisma.helpRequest.count({ where: { status: 'OPEN' as any } });
+        const pendingScholarships = await prisma.scholarshipApplication.count({ where: { status: 'PENDING' } });
 
         res.json({
             users: { total: totalUsers, pending: pendingUsers },
@@ -18,7 +19,8 @@ export const getStats = async (req: Request, res: Response): Promise<void> => {
                 business: pendingBusiness,
                 career: pendingCareer,
                 events: pendingEvents,
-                services: pendingServices
+                services: pendingServices,
+                scholarships: pendingScholarships
             }
         });
     } catch (error) {
@@ -332,6 +334,10 @@ export const getAnalytics = async (req: Request, res: Response): Promise<void> =
             take: 10
         });
 
+        // User counts
+        const totalUsers = await prisma.user.count();
+        const activeUsers = await prisma.user.count({ where: { status: 'ACTIVE' } });
+
         // Family Members
         const totalFamilyMembers = await prisma.profile.aggregate({
             _sum: { totalFamilyMembers: true }
@@ -343,6 +349,8 @@ export const getAnalytics = async (req: Request, res: Response): Promise<void> =
 
         res.json({
             userGeography: usersByCity,
+            totalUsers,
+            activeUsers,
             totalFamilyMembers: totalFamilyMembers._sum.totalFamilyMembers || 0,
             contentActivity: {
                 events: eventCount,

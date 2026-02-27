@@ -38,8 +38,9 @@ router.get('/achievements', getAllAchievements);
 router.delete('/achievements/:id', deleteAchievement);
 
 // Scholarship Management
-import { createScholarship, getApplications, updateApplicationStatus } from '../controllers/scholarshipController';
-router.post('/scholarships', createScholarship);
+import { createScholarship, getAllScholarshipsAdmin, getApplications, updateApplicationStatus } from '../controllers/scholarshipController';
+router.post('/scholarships', upload.single('media'), createScholarship);
+router.get('/scholarships', getAllScholarshipsAdmin);
 router.get('/scholarships/:scholarshipId/applications', getApplications);
 router.post('/scholarships/applications/:applicationId/status', updateApplicationStatus);
 

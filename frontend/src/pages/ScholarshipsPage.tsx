@@ -25,6 +25,7 @@ interface Scholarship {
     contactEmail?: string;
     contactPhone?: string;
     mediaUrl?: string;
+    type: string;
 }
 
 const ScholarshipsPage = () => {
@@ -131,19 +132,33 @@ const ScholarshipsPage = () => {
                                                 <Avatar sx={{ background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)', color: 'white' }}>
                                                     <SchoolIcon />
                                                 </Avatar>
-                                                <Chip
-                                                    label={expired ? "DEADLINE PASSED" : "ACCEPTING APPLICATIONS"}
-                                                    size="small"
-                                                    sx={{
-                                                        bgcolor: expired ? 'rgba(0,0,0,0.6)' : 'rgba(255, 255, 255, 0.95)',
-                                                        color: expired ? '#ffffff' : '#E62A4D',
-                                                        fontWeight: 800,
-                                                        border: 'none',
-                                                        backdropFilter: 'blur(4px)',
-                                                        letterSpacing: '0.5px',
-                                                        boxShadow: expired ? 'none' : '0 4px 6px -1px rgba(0,0,0,0.1)'
-                                                    }}
-                                                />
+                                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, alignItems: 'flex-end' }}>
+                                                    <Chip
+                                                        label={scholarship.type === 'INTERNAL' ? 'INTERNAL' : 'EXTERNAL'}
+                                                        size="small"
+                                                        sx={{
+                                                            bgcolor: 'rgba(255, 255, 255, 0.2)',
+                                                            color: 'white',
+                                                            fontWeight: 700,
+                                                            border: 'none',
+                                                            backdropFilter: 'blur(4px)',
+                                                            letterSpacing: '0.5px'
+                                                        }}
+                                                    />
+                                                    <Chip
+                                                        label={expired ? "DEADLINE PASSED" : "ACCEPTING APPLICATIONS"}
+                                                        size="small"
+                                                        sx={{
+                                                            bgcolor: expired ? 'rgba(0,0,0,0.6)' : 'rgba(255, 255, 255, 0.95)',
+                                                            color: expired ? '#ffffff' : '#E62A4D',
+                                                            fontWeight: 800,
+                                                            border: 'none',
+                                                            backdropFilter: 'blur(4px)',
+                                                            letterSpacing: '0.5px',
+                                                            boxShadow: expired ? 'none' : '0 4px 6px -1px rgba(0,0,0,0.1)'
+                                                        }}
+                                                    />
+                                                </Box>
                                             </Box>
                                             <Typography variant="h4" fontWeight={900} sx={{ color: 'white', lineHeight: 1.2, mb: 0.5, position: 'relative', zIndex: 2 }}>
                                                 {scholarship.amount}
@@ -345,8 +360,10 @@ const ScholarshipsPage = () => {
                                         variant="contained"
                                         disabled={new Date(selectedScholarship.deadline) < new Date()}
                                         onClick={() => {
-                                            if (selectedScholarship.applicationLink) {
+                                            if (selectedScholarship.type === 'EXTERNAL' && selectedScholarship.applicationLink) {
                                                 window.open(selectedScholarship.applicationLink, '_blank');
+                                            } else {
+                                                window.location.href = `/scholarships/apply/${selectedScholarship.id}`;
                                             }
                                         }}
                                         sx={{

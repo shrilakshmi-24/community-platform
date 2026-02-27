@@ -38,7 +38,7 @@ const AdminContentCreation = () => {
         amount: '', deadline: '', educationLevel: 'Undergraduate',
         providerName: '', eligibility: '', requiredDocuments: '',
         applicationLink: '', contactEmail: '', contactPhone: '',
-        publishDate: '', expiryDate: '', visibility: 'ALL_MEMBERS'
+        publishDate: '', expiryDate: '', visibility: 'ALL_MEMBERS', type: 'INTERNAL'
     });
     const [scholarshipFiles, setScholarshipFiles] = useState<{ media?: File }>({});
 
@@ -126,14 +126,14 @@ const AdminContentCreation = () => {
                 data.append('media', scholarshipFiles.media);
             }
 
-            await client.post('/scholarships/create', data);
+            await client.post('/admin/scholarships', data);
             showToast('Scholarship published successfully', 'success');
             setScholarshipData({
                 title: '', description: '', shortDescription: '',
                 amount: '', deadline: '', educationLevel: 'Undergraduate',
                 providerName: '', eligibility: '', requiredDocuments: '',
                 applicationLink: '', contactEmail: '', contactPhone: '',
-                publishDate: '', expiryDate: '', visibility: 'ALL_MEMBERS'
+                publishDate: '', expiryDate: '', visibility: 'ALL_MEMBERS', type: 'INTERNAL'
             });
             setScholarshipFiles({});
         } catch (error) {
