@@ -110,6 +110,36 @@ const DynamicFields: React.FC<DynamicFieldsProps> = ({ contentType, formData, se
                         </Box>
                     )}
                 </Grid>
+
+                {/* Volunteering */}
+                <Grid size={{ xs: 12 }}>
+                    <Box sx={{ p: 2, border: '1px solid rgba(16,185,129,0.3)', borderRadius: 2, bgcolor: 'rgba(16,185,129,0.03)' }}>
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={formData.volunteersNeeded || false}
+                                    onChange={(e) => setFormData({ ...formData, volunteersNeeded: e.target.checked })}
+                                    sx={{ color: '#10b981', '&.Mui-checked': { color: '#059669' } }}
+                                />
+                            }
+                            label={<Typography fontWeight={700} color="#065f46">This event needs volunteers</Typography>}
+                        />
+                        {formData.volunteersNeeded && (
+                            <TextField
+                                fullWidth
+                                label="Volunteer Roles (comma-separated)"
+                                placeholder="e.g. Usher, Catering, Logistics, Photography"
+                                value={Array.isArray(formData.volunteerRoles) ? formData.volunteerRoles.join(', ') : (formData.volunteerRoles || '')}
+                                onChange={(e) => setFormData({
+                                    ...formData,
+                                    volunteerRoles: e.target.value.split(',').map((r: string) => r.trim()).filter(Boolean)
+                                })}
+                                helperText="Enter roles volunteers can sign up for, separated by commas"
+                                sx={{ mt: 2 }}
+                            />
+                        )}
+                    </Box>
+                </Grid>
             </Grid>
         );
     }

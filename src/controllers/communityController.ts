@@ -96,7 +96,8 @@ export const createEvent = async (req: AuthRequest, res: Response): Promise<void
             sendNotification, emailSubject, emailContent,
             registrationRequired, registrationLink, maxParticipants,
             contactPerson, contactEmail, contactPhone,
-            status, publishDate, expiryDate, visibility
+            status, publishDate, expiryDate, visibility,
+            volunteersNeeded, volunteerRoles
         } = req.body;
 
         if (!title || !date || !location) {
@@ -149,9 +150,14 @@ export const createEvent = async (req: AuthRequest, res: Response): Promise<void
                 expiryDate: expiryDate ? new Date(expiryDate) : null,
                 visibility: visibility || 'ALL_MEMBERS',
 
+                volunteersNeeded: volunteersNeeded === 'true' || volunteersNeeded === true,
+                volunteerRoles: Array.isArray(volunteerRoles)
+                    ? volunteerRoles
+                    : (volunteerRoles ? [volunteerRoles] : []),
+
                 mediaUrl,
-                mediaType, // Saved if uploaded
-                images: images // Save array of image URLs
+                mediaType,
+                images: images
             }
         });
 
@@ -212,10 +218,12 @@ export const createEvent = async (req: AuthRequest, res: Response): Promise<void
 
 export const getAllEvents = async (req: Request, res: Response): Promise<void> => {
     try {
+        const now = new Date();
         const events = await prisma.event.findMany({
             where: {
                 status: 'APPROVED',
-                publishDate: { lte: new Date() }
+                publishDate: { lte: now },
+                date: { gte: now }  // Only upcoming events
             },
             include: { organizer: { select: { profile: { select: { fullName: true } } } } },
             orderBy: { date: 'asc' }
@@ -330,6 +338,129 @@ export const getMyEventRegistrations = async (req: AuthRequest, res: Response): 
         res.status(500).json({ message: 'Server error', error });
     }
 };
+// VOLUNTEER SIGNUPS
+export const volunteerForEvent = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const userId = req.user.userId;
+        const { eventId, role, notes } = req.body;
+
+        if (!eventId) {
+            res.status(400).json({ message: 'Event ID is required' });
+            return;
+        }
+
+        // Only verified (ACTIVE status) members can volunteer
+        const requestingUser = await prisma.user.findUnique({ where: { id: userId } });
+        if (!requestingUser || requestingUser.status !== 'ACTIVE') {
+            res.status(403).json({
+                message: 'Only verified members can sign up to volunteer. Please complete your profile verification first.'
+            });
+            return;
+        }
+
+        const event = await prisma.event.findUnique({ where: { id: eventId } });
+        if (!event) {
+            res.status(404).json({ message: 'Event not found' });
+            return;
+        }
+
+        if (!event.volunteersNeeded) {
+            res.status(400).json({ message: 'This event is not seeking volunteers' });
+            return;
+        }
+
+        const existing = await (prisma as any).volunteerSignup.findUnique({
+            where: { eventId_userId: { eventId, userId } }
+        });
+
+        if (existing) {
+            res.status(400).json({ message: 'You have already signed up to volunteer for this event' });
+            return;
+        }
+
+        const signup = await (prisma as any).volunteerSignup.create({
+            data: { eventId, userId, role: role || null, notes: notes || null }
+        });
+
+        res.status(201).json({ message: 'Volunteer signup successful', signup });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error', error });
+    }
+};
+
+export const cancelVolunteer = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const userId = req.user.userId;
+        const { eventId } = req.body;
+
+        await (prisma as any).volunteerSignup.delete({
+            where: { eventId_userId: { eventId, userId } }
+        });
+
+        res.status(200).json({ message: 'Volunteer signup cancelled' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error', error });
+    }
+};
+
+export const getMyVolunteerSignups = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const userId = req.user.userId;
+        const signups = await (prisma as any).volunteerSignup.findMany({
+            where: { userId },
+            select: { eventId: true, role: true, status: true }
+        });
+        res.status(200).json({ signups });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error', error });
+    }
+};
+
+export const getVolunteersForEvent = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const { eventId } = req.params;
+
+        const signups = await (prisma as any).volunteerSignup.findMany({
+            where: { eventId },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        mobileNumber: true,
+                        profile: { select: { fullName: true, email: true, avatarUrl: true } }
+                    }
+                }
+            },
+            orderBy: { createdAt: 'desc' }
+        });
+
+        res.status(200).json({ signups });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error', error });
+    }
+};
+
+export const updateVolunteerStatus = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const { signupId } = req.params;
+        const { status } = req.body;
+
+        const updated = await (prisma as any).volunteerSignup.update({
+            where: { id: signupId },
+            data: { status }
+        });
+
+        res.status(200).json({ message: 'Status updated', signup: updated });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error', error });
+    }
+};
+
 export const getCommunityStats = async (req: Request, res: Response): Promise<void> => {
     try {
         const [

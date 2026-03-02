@@ -21,7 +21,8 @@ const AdminContentCreation = () => {
         registrationRequired: false, registrationLink: '', maxParticipants: '',
         contactPerson: '', contactEmail: '', contactPhone: '',
         sendNotification: false, emailSubject: '', emailContent: '',
-        publishDate: '', expiryDate: '', visibility: 'ALL_MEMBERS'
+        publishDate: '', expiryDate: '', visibility: 'ALL_MEMBERS',
+        volunteersNeeded: false, volunteerRoles: [] as string[]
     });
     const [eventFiles, setEventFiles] = useState<{ media?: File, [key: string]: File | undefined }>({});
 
@@ -82,8 +83,15 @@ const AdminContentCreation = () => {
         e.preventDefault();
         setLoading(true);
         const data = new FormData();
-        Object.entries(eventData).forEach(([key, value]) => data.append(key, value.toString()));
-        if (eventFiles.media) data.append('images', eventFiles.media); // Backend expects 'images' array or single 'media'?
+        Object.entries(eventData).forEach(([key, value]) => {
+            if (key === 'volunteerRoles') {
+                // Send each role separately so backend receives an array
+                (value as string[]).forEach(role => data.append('volunteerRoles', role));
+            } else {
+                data.append(key, value.toString());
+            }
+        });
+        if (eventFiles.media) data.append('images', eventFiles.media);
 
         try {
             await client.post('/community/events/create', data);

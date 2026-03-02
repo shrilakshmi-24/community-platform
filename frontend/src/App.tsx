@@ -41,6 +41,7 @@ import ScholarshipManager from './pages/admin/ScholarshipManager';
 import AdminContentCreation from './pages/admin/AdminContentCreation';
 import NewsletterEditor from './pages/admin/NewsletterEditor';
 import AdminHelpDesk from './pages/admin/AdminHelpDesk';
+import AdminVolunteerManager from './pages/admin/AdminVolunteerManager';
 
 // Profile section pages
 import AboutMe from './pages/profile/AboutMe';
@@ -104,6 +105,7 @@ const App = () => {
               <Route path="newsletters" element={<NewsletterEditor />} />
               <Route path="reports" element={<AdminReports />} />
               <Route path="help-desk" element={<AdminHelpDesk />} />
+              <Route path="volunteering" element={<AdminVolunteerManager />} />
 
               {/* SUPER_ADMIN only routes */}
               <Route

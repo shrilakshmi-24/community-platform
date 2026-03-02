@@ -91,6 +91,7 @@ model User {
   groupMemberships GroupMember[]
   organizedEvents  Event[]
   eventRegistrations EventRegistration[]
+  volunteerSignups  VolunteerSignup[]
   achievements     Achievement[]
   supportRequests  SupportRequest[]
   notifications    Notification[]
@@ -439,7 +440,8 @@ model Event {
   updatedAt DateTime      @updatedAt
 
   @@index([date])
-  registrations EventRegistration[]
+  registrations     EventRegistration[]
+  volunteerSignups  VolunteerSignup[]
 }
 
 model EventRegistration {
@@ -453,6 +455,23 @@ model EventRegistration {
   updatedAt DateTime @updatedAt
 
   @@unique([eventId, userId])
+}
+
+model VolunteerSignup {
+  id        String   @id @default(uuid())
+  eventId   String
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      String?  // The volunteer role selected
+  status    String   @default("PENDING") // PENDING, ACCEPTED, REJECTED
+  notes     String?  // Any notes from the volunteer
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([eventId, userId])
+  @@index([eventId])
+  @@index([userId])
 }
 
 model Achievement {

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Outlet, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import {
     Box, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText,
-    AppBar, Toolbar, Typography, IconButton, CssBaseline, Divider, Chip, Tooltip
+    AppBar, Toolbar, Typography, IconButton, CssBaseline, Divider, Chip
 } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import PeopleIcon from '@mui/icons-material/People';
@@ -15,6 +15,7 @@ import PostAddIcon from '@mui/icons-material/PostAdd';
 import MenuIcon from '@mui/icons-material/Menu';
 import LogoutIcon from '@mui/icons-material/Logout';
 import LiveHelpIcon from '@mui/icons-material/LiveHelp';
+import HandshakeIcon from '@mui/icons-material/Handshake';
 import NewspaperIcon from '@mui/icons-material/Newspaper';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
@@ -37,6 +38,7 @@ const ALL_MENU_ITEMS: MenuItem[] = [
     { text: 'Content Moderation', icon: <RateReviewIcon />, path: '/admin/moderation' },
     { text: 'Donations', icon: <VolunteerActivismIcon />, path: '/admin/donations' },
     { text: 'Scholarships', icon: <SchoolIcon />, path: '/admin/scholarships' },
+    { text: 'Volunteering', icon: <HandshakeIcon />, path: '/admin/volunteering' },
     { text: 'Create Content', icon: <PostAddIcon />, path: '/admin/create-content' },
     { text: 'Newsletters', icon: <NewspaperIcon />, path: '/admin/newsletters' },
     { text: 'Reports & Analytics', icon: <BarChartIcon />, path: '/admin/reports' },
